@@ -1,0 +1,8 @@
+/node_modules
+.env
+<<<<<<< HEAD
+/data/mongo
+/data
+=======
+/data/mongo
+>>>>>>> 3abe0f095d8d6fb48fd50510382dac03ef6141f7
