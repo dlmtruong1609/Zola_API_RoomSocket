@@ -112,8 +112,27 @@ const validateCreateGroup = () => {
     ]
 }
 
+const validateDeleteRoom = () => {
+    return [
+        query('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
+        query('id').custom(async (value, { req }) => {
+            const decoded = await jwtHelper.verifyToken(
+                req.headers['x-access-token'],
+                accessTokenSecret
+            )
+            const accountDecode = decoded.data
+            const userId = accountDecode.id
+            const room = await Room.findOne({$and: [{users: {$elemMatch: {id: userId}}}, {_id: value}]})
+            if (!room) {
+                throw new Error(CONSTANT.ROOM_NOT_FOUND)
+            }
+        })
+    ]
+}
+
 module.exports = {
     validateCreateSingle: validateCreateSingle,
     validateFindById: validateFindById,
-    validateCreateGroup: validateCreateGroup
+    validateCreateGroup: validateCreateGroup,
+    validateDeleteRoom: validateDeleteRoom
 }

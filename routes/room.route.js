@@ -11,4 +11,6 @@ router.get('/api/v0/rooms', roomService.getAll)
 
 router.get('/api/v0/rooms/detail', roomValidator.validateFindById(), roomService.findRoomById)
 
+router.delete('/api/v0/rooms', roomValidator.validateDeleteRoom(), roomService.deleteRoom)
+
 module.exports = router;

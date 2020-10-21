@@ -3,6 +3,7 @@ module.exports.ERROR_FROM_MONGO = 'Error from db'
 module.exports.INVALID_VALUE = 'Invalid value'
 module.exports.FIND_SUCCESS = 'Find success'
 module.exports.ROOM_NOT_FOUND = 'Room not found'
+module.exports.DELETE_SUCCESS = 'Delete Success'
 
 
 //validator create signle room

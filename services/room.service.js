@@ -60,8 +60,13 @@ const createSingle = async (req, res) => {
                 }
               };
             const requestPromise = util.promisify(request)
-            let user = await requestPromise(options)
-            room.users.push(JSON.parse(user.body).data)
+            let result = await requestPromise(options)
+            // danh dau de hien thi message tu ngay nay
+            let user = await {
+                ...JSON.parse(result.body).data,
+                startDate: new Date
+            }
+            room.users.push(user)
         }
         room.save().then(data => {
             res.status(201).send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null));
@@ -104,8 +109,13 @@ const createGroup = async (req, res) => {
                 }
                 };
             const requestPromise = await util.promisify(request)
-            let user = await requestPromise(options)
-            room.users.push(JSON.parse(user.body).data)
+            let result = await requestPromise(options)
+            // danh dau de hien thi message tu ngay nay
+            let user = await {
+                ...JSON.parse(result.body).data,
+                startDate: new Date
+            }
+            room.users.push(user)
         }
         room.save().then(data => {
             res.status(201).send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null));
@@ -156,17 +166,33 @@ const getAll = async (req, res) => {
 
 }
 
-const deleteRoom = (req, res) => {
+const deleteRoom = async (req, res) => {
     const id = req.query.id
-    Room.findByIdAndDelete(id).then(room => {
-        if(room) {
+    const decoded = await jwtHelper.verifyToken(
+        req.headers['x-access-token'],
+        accessTokenSecret
+    )
+    const accountDecode = decoded.data
+    const userId = accountDecode.id
+
+    const errs = validationResult(req).formatWith(errorFormatter)
+    if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
+        Room.findOneAndUpdate({
+            _id: id,
+            'users.id': userId
+        },  {
+            $set: {
+                "users.$.startDate": new Date()
+            }
+        }).then(room => {
             res.status(200).send(new Response(false, CONSTANT.DELETE_SUCCESS, null));
-        } else {
-            res.status(404).send(new Response(false, CONSTANT.ROOM_NOT_FOUND, null));
-        }
-    }).catch((err) => {
-        res.status(503).send(new Response(true, CONSTANT.ERROR_FROM_MONGO, [{msg: err, param: ""}]));
-    })
+        }).catch((err) => {
+            res.status(503).send(new Response(true, CONSTANT.ERROR_FROM_MONGO, [{msg: err, param: ""}]));
+        })
+    } else {
+        const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
+        res.status(400).send(response)
+    }
 
 }
 
