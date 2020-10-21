@@ -62,7 +62,7 @@ const createSingle = async (req, res) => {
             const requestPromise = util.promisify(request)
             let user = await requestPromise(options)
             room.users.push(JSON.parse(user.body).data)
-            }
+        }
         room.save().then(data => {
             res.status(201).send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null));
         }).catch(err => {
@@ -82,8 +82,31 @@ const createGroup = async (req, res) => {
         group: true,
         createdAt: new Date() 
     })
-
+    // decode
+    const decoded = await jwtHelper.verifyToken(
+        req.headers['x-access-token'],
+        accessTokenSecret
+    )
+    const accountDecode = decoded.data
+    const userId = accountDecode.id
+    // 
+    let list_user_id = req.body.list_user_id
+    list_user_id.push(userId)
+    console.log('acsvas' + list_user_id);
     if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
+        // lay user nhung vao room
+        for (let index = 0; index < list_user_id.length; index++) {
+            let options = await {
+                'method': 'GET',
+                'url': `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[index]}`,
+                'headers': {
+                    'x-access-token': process.env.TOKEN_3650
+                }
+                };
+            const requestPromise = await util.promisify(request)
+            let user = await requestPromise(options)
+            room.users.push(JSON.parse(user.body).data)
+        }
         room.save().then(data => {
             res.status(201).send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null));
         }).catch(err => {

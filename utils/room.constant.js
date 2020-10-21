@@ -12,6 +12,10 @@ module.exports.FRIEND_ID_REQUIRED = 'friend id is required'
 module.exports.ROOM_EXIST = 'Room Exist'
 module.exports.USER_NOT_FOUND = 'User not found'
 
+// validator create group
+module.exports.LIST_USER_ID_REQUIRED = 'List user id is required'
+module.exports.NUMBER_USER_MUST_GREATER_THAN_2 = 'Number user is >= 3'
+module.exports.ID_USER_DUPLICATE = 'Id user duplicate'
 // findById
 module.exports.ID_IS_REQUIRED = 'Id is required'
 module.exports.ACCESS_DENIED = 'Access denied'

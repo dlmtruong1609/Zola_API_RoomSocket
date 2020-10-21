@@ -36,7 +36,7 @@ const validateCreateSingle = () => {
             const userId = accountDecode.id
             console.log(userId);
             console.log(value);
-            const room = await Room.findOne({$and: [{users: {$elemMatch: {id: Number(value)}}}, {users: {$elemMatch: {id: Number(userId)}}}]})
+            const room = await Room.findOne({$and: [{users: {$elemMatch: {id: Number(value)}}}, {users: {$elemMatch: {id: Number(userId)}}}, {group: false}]})
             console.log('asd ' + room);
             if (room) {
                 throw new Error(CONSTANT.ROOM_EXIST)
@@ -67,7 +67,53 @@ const validateFindById = () => {
     ]
 }
 
+const validateCreateGroup = () => {
+    return [
+        check('name', CONSTANT.NAME_IS_REQUIRED).not().isEmpty(),
+        check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 6, max: 32 }),
+        check('list_user_id', CONSTANT.LIST_USER_ID_REQUIRED).not().isEmpty(),
+        check('list_user_id').custom((value, { req }) => {
+            if (value.length < 3) {
+                throw new Error(CONSTANT.NUMBER_USER_MUST_GREATER_THAN_2)
+            }
+            return true
+        }),
+        check('list_user_id').custom(async (value, { req }) => {
+            const decoded = await jwtHelper.verifyToken(
+                req.headers['x-access-token'],
+                accessTokenSecret
+            )
+            const accountDecode = decoded.data
+            const userId = accountDecode.id
+            const list_user_id = [...value];
+            list_user_id.push(userId)
+            for (let i = 0; i < list_user_id.length; i++) {
+                let options = {
+                    'method': 'GET',
+                    'url': `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[i]}`,
+                    'headers': {
+                      'x-access-token': process.env.TOKEN_3650
+                    }
+                }
+                const requestPromise = util.promisify(request)
+                let user = await requestPromise(options)
+                if (!JSON.parse(user.body).data) {
+                    throw new Error(CONSTANT.USER_NOT_FOUND)
+                }
+                for (let j = i + 1; j < list_user_id.length; j++) {
+                    if(list_user_id[i] === list_user_id[j]) {
+                        throw new Error(CONSTANT.ID_USER_DUPLICATE)
+                    }
+                    
+                }
+                
+            }
+        })
+    ]
+}
+
 module.exports = {
     validateCreateSingle: validateCreateSingle,
-    validateFindById: validateFindById
+    validateFindById: validateFindById,
+    validateCreateGroup: validateCreateGroup
 }

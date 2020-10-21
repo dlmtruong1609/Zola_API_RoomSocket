@@ -3,7 +3,9 @@ const router = express.Router();
 const roomService = require('../services/room.service')
 const roomValidator = require('../validators/room.validator')
 
-router.post('/api/v0/rooms', roomValidator.validateCreateSingle(), roomService.createSingle)
+router.post('/api/v0/rooms/single', roomValidator.validateCreateSingle(), roomService.createSingle)
+
+router.post('/api/v0/rooms/group', roomValidator.validateCreateGroup(), roomService.createGroup)
 
 router.get('/api/v0/rooms', roomService.getAll)
 
