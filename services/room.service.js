@@ -32,8 +32,18 @@ const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
 }
 
 const createSingle = async (req, res) => {
-    const list_user_id = req.body.list_user_id
+    // decode
+    const decoded = await jwtHelper.verifyToken(
+        req.headers['x-access-token'],
+        accessTokenSecret
+    )
+    const accountDecode = decoded.data
+    const userId = accountDecode.id
+    // 
+    const list_user_id = [req.query.friend_id, userId]
+    //
     const errs = validationResult(req).formatWith(errorFormatter)
+    //
     const room = new Room({
         name: req.body.name,
         group: false,
@@ -49,9 +59,9 @@ const createSingle = async (req, res) => {
                   'x-access-token': process.env.TOKEN_3650
                 }
               };
-              const requestPromise = util.promisify(request)
-              let user = await requestPromise(options)
-              room.users.push(JSON.parse(user.body).data)
+            const requestPromise = util.promisify(request)
+            let user = await requestPromise(options)
+            room.users.push(JSON.parse(user.body).data)
             }
         room.save().then(data => {
             res.status(201).send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null));

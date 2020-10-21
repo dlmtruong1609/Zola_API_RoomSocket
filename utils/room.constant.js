@@ -8,8 +8,9 @@ module.exports.ROOM_NOT_FOUND = 'Room not found'
 //validator create signle room
 module.exports.NAME_IS_6_32_SYMBOL = 'The name is 6 - 32 characters long'
 module.exports.NAME_IS_REQUIRED = 'Name is required'
-module.exports.LIST_USER_ID_REQUIRED = 'List user id is required'
-module.exports.LIST_USER_ID_LENGTH_IS_2 = 'List user id length is 2'
+module.exports.FRIEND_ID_REQUIRED = 'friend id is required'
+module.exports.ROOM_EXIST = 'Room Exist'
+module.exports.USER_NOT_FOUND = 'User not found'
 
 // findById
 module.exports.ID_IS_REQUIRED = 'Id is required'
