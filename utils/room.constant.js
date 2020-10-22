@@ -6,6 +6,7 @@ module.exports.ROOM_NOT_FOUND = 'Room not found'
 module.exports.DELETE_SUCCESS = 'Delete Success'
 module.exports.EXIT_SUCCESS = 'Exit Success'
 module.exports.UPDATE_SUCCESS = 'Update Success'
+module.exports.ADD_SUCCESS = 'Add Success'
 
 
 //validator create signle room
@@ -22,3 +23,5 @@ module.exports.ID_USER_DUPLICATE = 'Id user duplicate'
 // findById
 module.exports.ID_IS_REQUIRED = 'Id is required'
 module.exports.ACCESS_DENIED = 'Access denied'
+//validator add member
+module.exports.USER_HAS_PARTICIPATED = 'User has participated'

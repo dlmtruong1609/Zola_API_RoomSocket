@@ -147,10 +147,101 @@ const validateExitRoom = () => {
         })
     ]
 }
+
+const validateUpdateRoom = () => {
+    return [
+        check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 6, max: 32 }),
+        query('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
+        query('id').custom(async (value, { req }) => {
+            const decoded = await jwtHelper.verifyToken(
+                req.headers['x-access-token'],
+                accessTokenSecret
+            )
+            const accountDecode = decoded.data
+            const userId = accountDecode.id
+            const room = await Room.findOne({$and: [{users: {$elemMatch: {id: userId}}}, {_id: value}]})
+            if (!room) {
+                throw new Error(CONSTANT.ROOM_NOT_FOUND)
+            }
+        })
+    ]
+}
+
+const validateAddMember = () => {
+    return [
+        check('list_user_id', CONSTANT.LIST_USER_ID_REQUIRED).not().isEmpty(),
+        check('list_user_id').custom(async (value, { req }) => {
+            const decoded = await jwtHelper.verifyToken(
+                req.headers['x-access-token'],
+                accessTokenSecret
+            )
+            const accountDecode = decoded.data
+            const userId = accountDecode.id
+            const list_user_id = [...value];
+            list_user_id.push(userId)
+            for (let i = 0; i < list_user_id.length; i++) {
+                let options = {
+                    'method': 'GET',
+                    'url': `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[i]}`,
+                    'headers': {
+                      'x-access-token': process.env.TOKEN_3650
+                    }
+                }
+                const requestPromise = util.promisify(request)
+                let user = await requestPromise(options)
+                if (!JSON.parse(user.body).data) {
+                    throw new Error(CONSTANT.USER_NOT_FOUND)
+                }
+                for (let j = i + 1; j < list_user_id.length; j++) {
+                    if(list_user_id[i] === list_user_id[j]) {
+                        throw new Error(CONSTANT.ID_USER_DUPLICATE)
+                    }
+                    
+                }
+                
+            }
+        }),
+        query('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
+        query('id').custom(async (value, { req }) => {
+            const decoded = await jwtHelper.verifyToken(
+                req.headers['x-access-token'],
+                accessTokenSecret
+            )
+            const accountDecode = decoded.data
+            const userId = accountDecode.id
+            const room = await Room.findOne({$and: [{users: {$elemMatch: {id: userId}}}, {_id: value}, {group: true}]})
+            if (!room) {
+                throw new Error(CONSTANT.ROOM_NOT_FOUND)
+            }
+        }),
+        query('id').custom(async (value, { req }) => {
+            const decoded = await jwtHelper.verifyToken(
+                req.headers['x-access-token'],
+                accessTokenSecret
+            )
+            const accountDecode = decoded.data
+            const userId = accountDecode.id
+            const room = await Room.findOne({$and: [{users: {$elemMatch: {id: userId}}}, {_id: value}, {group: true}]})
+
+            let list_user_id = await req.body.list_user_id
+            console.log(room.users.length);
+            for (let i = 0; i < room.users.length; i++) {
+                for (let j = 0; j < list_user_id.length; j++) {
+                    let a = await list_user_id[j]
+                    if (room.users[i].id === list_user_id[j]) {
+                        throw new Error(CONSTANT.USER_HAS_PARTICIPATED)
+                    }
+                }
+            }
+        })
+    ]
+}
 module.exports = {
     validateCreateSingle: validateCreateSingle,
     validateFindById: validateFindById,
     validateCreateGroup: validateCreateGroup,
     validateDeleteRoom: validateDeleteRoom,
-    validateExitRoom: validateExitRoom
+    validateExitRoom: validateExitRoom,
+    validateUpdateRoom: validateUpdateRoom,
+    validateAddMember: validateAddMember
 }
