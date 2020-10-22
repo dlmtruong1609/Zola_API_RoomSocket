@@ -4,6 +4,8 @@ module.exports.INVALID_VALUE = 'Invalid value'
 module.exports.FIND_SUCCESS = 'Find success'
 module.exports.ROOM_NOT_FOUND = 'Room not found'
 module.exports.DELETE_SUCCESS = 'Delete Success'
+module.exports.EXIT_SUCCESS = 'Exit Success'
+module.exports.UPDATE_SUCCESS = 'Update Success'
 
 
 //validator create signle room
@@ -15,7 +17,7 @@ module.exports.USER_NOT_FOUND = 'User not found'
 
 // validator create group
 module.exports.LIST_USER_ID_REQUIRED = 'List user id is required'
-module.exports.NUMBER_USER_MUST_GREATER_THAN_2 = 'Number user is >= 3'
+module.exports.NUMBER_USER_MUST_GREATER_THAN_2 = 'Number user is >= 2'
 module.exports.ID_USER_DUPLICATE = 'Id user duplicate'
 // findById
 module.exports.ID_IS_REQUIRED = 'Id is required'

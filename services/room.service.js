@@ -64,7 +64,8 @@ const createSingle = async (req, res) => {
             // danh dau de hien thi message tu ngay nay
             let user = await {
                 ...JSON.parse(result.body).data,
-                startDate: new Date
+                startDate: new Date,
+                deleted: false
             }
             room.users.push(user)
         }
@@ -113,7 +114,8 @@ const createGroup = async (req, res) => {
             // danh dau de hien thi message tu ngay nay
             let user = await {
                 ...JSON.parse(result.body).data,
-                startDate: new Date
+                startDate: new Date,
+                deleted: false
             }
             room.users.push(user)
         }
@@ -182,7 +184,8 @@ const deleteRoom = async (req, res) => {
             'users.id': userId
         },  {
             $set: {
-                "users.$.startDate": new Date()
+                "users.$.startDate": new Date(),
+                'users.$.deleted': true
             }
         }).then(room => {
             res.status(200).send(new Response(false, CONSTANT.DELETE_SUCCESS, null));
@@ -196,11 +199,42 @@ const deleteRoom = async (req, res) => {
 
 }
 
-const exitRoom = (req, res) => {
+const exitRoom = async (req, res) => {
     const id = req.query.id
+    const decoded = await jwtHelper.verifyToken(
+        req.headers['x-access-token'],
+        accessTokenSecret
+    )
+    const accountDecode = decoded.data
+    const userId = accountDecode.id
+
+    const errs = validationResult(req).formatWith(errorFormatter)
+    if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
+        const room = await Room.findOne({
+            _id: id,
+            'users.id': userId
+        })
+        Room.findOneAndUpdate({
+            _id: id,
+            'users.id': userId
+        },  {
+            users: room.users.filter((user) => {return (user.id > userId || user.id < userId)})
+        }).then(result => {
+            res.status(200).send(new Response(false, CONSTANT.EXIT_SUCCESS, null));
+        }).catch((err) => {
+            res.status(503).send(new Response(true, CONSTANT.ERROR_FROM_MONGO, [{msg: err, param: ""}]));
+        })
+    } else {
+        const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
+        res.status(400).send(response)
+    }
 }
 
 const updateRoom = (req, res) => {
+    const id = req.query.id
+}
+
+const addMember = (req, res) => {
     const id = req.query.id
 }
 module.exports = {
@@ -210,5 +244,6 @@ module.exports = {
     findRoomById: findRoomById,
     deleteRoom: deleteRoom,
     exitRoom: exitRoom,
-    updateRoom: updateRoom
+    updateRoom: updateRoom,
+    addMember: addMember
 }

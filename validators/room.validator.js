@@ -73,7 +73,7 @@ const validateCreateGroup = () => {
         check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 6, max: 32 }),
         check('list_user_id', CONSTANT.LIST_USER_ID_REQUIRED).not().isEmpty(),
         check('list_user_id').custom((value, { req }) => {
-            if (value.length < 3) {
+            if (value.length < 2) {
                 throw new Error(CONSTANT.NUMBER_USER_MUST_GREATER_THAN_2)
             }
             return true
@@ -130,9 +130,27 @@ const validateDeleteRoom = () => {
     ]
 }
 
+const validateExitRoom = () => {
+    return [
+        query('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
+        query('id').custom(async (value, { req }) => {
+            const decoded = await jwtHelper.verifyToken(
+                req.headers['x-access-token'],
+                accessTokenSecret
+            )
+            const accountDecode = decoded.data
+            const userId = accountDecode.id
+            const room = await Room.findOne({$and: [{users: {$elemMatch: {id: userId}}}, {_id: value}, {group: true}]})
+            if (!room) {
+                throw new Error(CONSTANT.ROOM_NOT_FOUND)
+            }
+        })
+    ]
+}
 module.exports = {
     validateCreateSingle: validateCreateSingle,
     validateFindById: validateFindById,
     validateCreateGroup: validateCreateGroup,
-    validateDeleteRoom: validateDeleteRoom
+    validateDeleteRoom: validateDeleteRoom,
+    validateExitRoom: validateExitRoom
 }
