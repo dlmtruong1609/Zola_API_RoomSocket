@@ -1,7 +1,6 @@
 /* eslint-disable no-use-before-define */
 const express = require('express')
 
-const path = require('path')
 const logger = require('morgan')
 
 const roomRouter = require('./routes/room.route')

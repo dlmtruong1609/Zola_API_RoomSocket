@@ -8,9 +8,8 @@ module.exports.EXIT_SUCCESS = 'Exit Success'
 module.exports.UPDATE_SUCCESS = 'Update Success'
 module.exports.ADD_SUCCESS = 'Add Success'
 
-
-//validator create signle room
-module.exports.NAME_IS_6_32_SYMBOL = 'The name is 6 - 32 characters long'
+// validator create signle room
+module.exports.NAME_IS_6_32_SYMBOL = 'The name have at least 1 character'
 module.exports.NAME_IS_REQUIRED = 'Name is required'
 module.exports.FRIEND_ID_REQUIRED = 'friend id is required'
 module.exports.ROOM_EXIST = 'Room Exist'
@@ -23,5 +22,5 @@ module.exports.ID_USER_DUPLICATE = 'Id user duplicate'
 // findById
 module.exports.ID_IS_REQUIRED = 'Id is required'
 module.exports.ACCESS_DENIED = 'Access denied'
-//validator add member
+// validator add member
 module.exports.USER_HAS_PARTICIPATED = 'User has participated'

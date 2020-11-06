@@ -38,6 +38,9 @@ const connection = (socket) => {
       await Room.findByIdAndUpdate(room._id, {
         $push: {
           messages: messages
+        },
+        $set: {
+          'users.$.deleted': false
         }
       })
       global.io.sockets.in(room._id).emit('send_and_recive', messages)
