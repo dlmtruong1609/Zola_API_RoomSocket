@@ -13,7 +13,7 @@ const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET
 const validateCreateSingle = () => {
   return [
     check('name', CONSTANT.NAME_IS_REQUIRED).not().isEmpty(),
-    check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 1, max: 1 }),
+    check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 1, max: 32 }),
     query('friend_id', CONSTANT.FRIEND_ID_REQUIRED).not().isEmpty(),
     query('friend_id').custom(async (value, { req }) => {
       const options = {
@@ -71,7 +71,7 @@ const validateFindById = () => {
 const validateCreateGroup = () => {
   return [
     check('name', CONSTANT.NAME_IS_REQUIRED).not().isEmpty(),
-    check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 1, max: 1 }),
+    check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 1, max: 32 }),
     check('list_user_id', CONSTANT.LIST_USER_ID_REQUIRED).not().isEmpty(),
     check('list_user_id').custom((value, { req }) => {
       if (value.length < 2) {
@@ -149,7 +149,7 @@ const validateExitRoom = () => {
 
 const validateUpdateRoom = () => {
   return [
-    check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 1, max: 1 }),
+    check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 1, max: 32 }),
     query('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
     query('id').custom(async (value, { req }) => {
       const decoded = await jwtHelper.verifyToken(
