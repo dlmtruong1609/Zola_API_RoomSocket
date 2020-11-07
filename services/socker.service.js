@@ -9,6 +9,7 @@ const connection = (socket) => {
     // client.join(name)
     socket.info = info
     const room = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.friend_in_room.id) } } }, { users: { $elemMatch: { id: Number(socket.info.user.id) } } }, { group: false }] })
+    console.log(room._id)
     if (!room) {
       const roomData = {
         name: ''
@@ -35,7 +36,7 @@ const connection = (socket) => {
         type: 'String',
         createdAt: new Date()
       }
-      await Room.findByIdAndUpdate(room._id, {
+      await Room.update({ _id: room._id, 'users.id': socket.info.user.id }, {
         $push: {
           messages: messages
         },
