@@ -4,11 +4,7 @@ const util = require('util')
 
 const createSingle = async (room, list_user_id = []) => {
   //
-  room = new Room({
-    name: room.name,
-    group: false,
-    created_At: new Date()
-  })
+  room = new Room(room)
   // lay user nhung vao room
   for (let index = 0; index < list_user_id.length; index++) {
     const options = await {
@@ -33,11 +29,7 @@ const createSingle = async (room, list_user_id = []) => {
 }
 
 const createGroup = async (room, list_user_id = []) => {
-  room = await new Room({
-    name: room.name,
-    group: true,
-    createdAt: new Date()
-  })
+  room = await new Room(room)
   // lay user nhung vao room
   for (let index = 0; index < list_user_id.length; index++) {
     const options = await {

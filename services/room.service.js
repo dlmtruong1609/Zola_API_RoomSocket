@@ -47,7 +47,9 @@ const createSingle = async (req, res) => {
   const errs = validationResult(req).formatWith(errorFormatter)
   //
   const room = {
-    name: req.body.name
+    name: req.body.name,
+    group: false,
+    created_At: new Date()
   }
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
     const success = await roomDao.createSingle(room, list_user_id)
@@ -65,7 +67,9 @@ const createSingle = async (req, res) => {
 const createGroup = async (req, res) => {
   const errs = validationResult(req).formatWith(errorFormatter)
   const room = {
-    name: req.body.name
+    name: req.body.name,
+    group: false,
+    created_At: new Date()
   }
   // decode
   const decoded = await jwtHelper.verifyToken(

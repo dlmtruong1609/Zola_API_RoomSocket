@@ -5,16 +5,21 @@ const Room = require('../models/room.model')
 
 const roomDao = require('../daos/room.dao')
 const mongoose = require('mongoose')
+const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
+
 const connection = (socket) => {
   socket.on('join', async (info) => {
     // client.join(name)
     socket.info = info
-    const room = await Room.findById(info.roomId)
+    const room = checkForHexRegExp.test(info.roomId) ? await Room.findById(info.roomId) : undefined
     // new room
-    let roomSingle
     const roomData = {
-      name: ''
+      name: '',
+      group: false,
+      created_At: new Date()
     }
+    // check room id hop le va tao room voi id moi
+    checkForHexRegExp.test(info.roomId) ? roomData._id = info.roomId : info.roomId = ''
     const list_user_id = []
     for (let index = 0; index < info.list_user.length; index++) {
       await list_user_id.push(info.list_user[index].id)
@@ -22,14 +27,14 @@ const connection = (socket) => {
     //
     if (!room && info.list_user.length === 2) {
       // room nay de kiem tra if chi co 2 user
-      roomSingle = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.list_user[0].id) } } }, { users: { $elemMatch: { id: Number(socket.info.list_user[1].id) } } }, { group: false }] })
-      console.log(roomSingle)
+      const roomSingle = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.list_user[0].id) } } }, { users: { $elemMatch: { id: Number(socket.info.list_user[1].id) } } }, { group: false }] })
       if (!roomSingle) {
         await roomDao.createSingle(roomData, list_user_id)
         return
       }
     }
     if (!room) {
+      roomData.group = true
       await roomDao.createGroup(roomData, list_user_id)
     } else {
       socket.join(room._id)
