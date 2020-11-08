@@ -11,6 +11,7 @@ const connection = (socket) => {
   socket.on('join', async (info) => {
     // client.join(name)
     socket.info = info
+    console.log(info)
     const room = checkForHexRegExp.test(info.roomId) ? await Room.findById(info.roomId) : undefined
     // new room
     const roomData = {
