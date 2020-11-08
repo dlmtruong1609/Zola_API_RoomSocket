@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 /* eslint-disable camelcase */
 const Room = require('../models/room.model')
@@ -8,35 +9,49 @@ const connection = (socket) => {
   socket.on('join', async (info) => {
     // client.join(name)
     socket.info = info
-    const room = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.friend_in_room.id) } } }, { users: { $elemMatch: { id: Number(socket.info.user.id) } } }, { group: false }] })
-    console.log(room._id)
-    if (!room) {
-      const roomData = {
-        name: ''
+    const room = await Room.findById(info.roomId)
+    // new room
+    let roomSingle
+    const roomData = {
+      name: ''
+    }
+    const list_user_id = []
+    for (let index = 0; index < info.list_user.length; index++) {
+      await list_user_id.push(info.list_user[index].id)
+    }
+    //
+    if (!room && info.list_user.length === 2) {
+      // room nay de kiem tra if chi co 2 user
+      roomSingle = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.list_user[0].id) } } }, { users: { $elemMatch: { id: Number(socket.info.list_user[1].id) } } }, { group: false }] })
+      console.log(roomSingle)
+      if (!roomSingle) {
+        await roomDao.createSingle(roomData, list_user_id)
+        return
       }
-      const list_user_id = [socket.info.user.id, socket.info.friend_in_room.id]
-      await roomDao.createSingle(roomData, list_user_id)
+    }
+    if (!room) {
+      await roomDao.createGroup(roomData, list_user_id)
     } else {
       socket.join(room._id)
       for (let index = 0; index < room.messages.length; index++) {
-        global.io.sockets.in(room._id).emit('load_message', socket.info.user.id, room.messages[index])
+        global.io.sockets.in(room._id).emit('load_message', info.list_user[info.positionUserCurrent].id, room.messages[index])
       }
     }
     // global.io.sockets.emit('is_online', '🔵 <i>' + socket.user.name + ' connected</i>')
   })
   socket.on('send_and_recive', async (your_message) => {
-    const room = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.friend_in_room.id) } } }, { users: { $elemMatch: { id: Number(socket.info.user.id) } } }, { group: false }] })
+    const room = await Room.findById(socket.info.roomId)
     if (room) {
       socket.join(room._id)
       const id = mongoose.Types.ObjectId()
       const messages = {
-        user: socket.info.user,
+        user: socket.info.list_user[socket.info.positionUserCurrent],
         _id: id,
         content: your_message,
         type: 'String',
         createdAt: new Date()
       }
-      await Room.update({ _id: room._id, 'users.id': socket.info.user.id }, {
+      await Room.update({ _id: room._id, 'users.id': socket.info.list_user[socket.info.positionUserCurrent].id }, {
         $push: {
           messages: messages
         },

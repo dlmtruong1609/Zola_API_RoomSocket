@@ -17,7 +17,7 @@ module.exports.USER_NOT_FOUND = 'User not found'
 
 // validator create group
 module.exports.LIST_USER_ID_REQUIRED = 'List user id is required'
-module.exports.NUMBER_USER_MUST_GREATER_THAN_2 = 'Number user is >= 2'
+module.exports.NUMBER_USER_MUST_GREATER_THAN_1 = 'Number user is >= 2'
 module.exports.ID_USER_DUPLICATE = 'Id user duplicate'
 // findById
 module.exports.ID_IS_REQUIRED = 'Id is required'

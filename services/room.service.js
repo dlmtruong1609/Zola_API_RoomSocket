@@ -64,11 +64,9 @@ const createSingle = async (req, res) => {
 
 const createGroup = async (req, res) => {
   const errs = validationResult(req).formatWith(errorFormatter)
-  const room = await new Room({
-    name: req.body.name,
-    group: true,
-    createdAt: new Date()
-  })
+  const room = {
+    name: req.body.name
+  }
   // decode
   const decoded = await jwtHelper.verifyToken(
     req.headers['x-access-token'],
@@ -81,38 +79,12 @@ const createGroup = async (req, res) => {
   list_user_id.push(userId)
   console.log('acsvas' + list_user_id)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
-    // lay user nhung vao room
-    for (let index = 0; index < list_user_id.length; index++) {
-      const options = await {
-        method: 'GET',
-        url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[index]}`,
-        headers: {
-          'x-access-token': process.env.TOKEN_3650
-        }
-      }
-      const requestPromise = await util.promisify(request)
-      const result = await requestPromise(options)
-      // danh dau de hien thi message tu ngay nay
-      const user = await {
-        ...JSON.parse(result.body).data,
-        startDate: new Date(),
-        deleted: false
-      }
-      room.users.push(user)
+    const success = await roomDao.createGroup(room, list_user_id)
+    if (success) {
+      res
+        .status(201)
+        .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null))
     }
-    room
-      .save()
-      .then((data) => {
-        res
-          .status(201)
-          .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null))
-      })
-      .catch((err) => {
-        const response = new Response(true, CONSTANT.ERROR_FROM_MONGO, [
-          { msg: err, param: 'create' }
-        ])
-        res.status(503).send(response)
-      })
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
     res.status(400).send(response)
