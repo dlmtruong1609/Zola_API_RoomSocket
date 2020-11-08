@@ -34,7 +34,9 @@ const connection = (socket) => {
     } else {
       socket.join(room._id)
       for (let index = 0; index < room.messages.length; index++) {
-        global.io.sockets.in(room._id).emit('load_message', info.list_user[info.positionUserCurrent].id, room.messages[index])
+        if (room.messages[index].createdAt > room.users[socket.info.positionUserCurrent].startDate) {
+          global.io.sockets.in(room._id).emit('load_message', info.list_user[info.positionUserCurrent].id, room.messages[index])
+        }
       }
     }
     // global.io.sockets.emit('is_online', '🔵 <i>' + socket.user.name + ' connected</i>')
