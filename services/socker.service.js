@@ -71,10 +71,9 @@ const connection = (socket) => {
     }
   })
   socket.on('delete_message', async (your_message_id) => {
-    const room = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.friend_in_room.id) } } }, { users: { $elemMatch: { id: Number(socket.info.user.id) } } }, { group: false }] })
+    const room = await Room.findById(socket.info.roomId)
     // cach nay anh huong perform
     const newListMessage = await room.messages.filter(mess => String(mess._id) !== String(your_message_id))
-    console.log(JSON.stringify(newListMessage))
     await Room.findByIdAndUpdate(room._id, {
       $set: {
         messages: newListMessage
