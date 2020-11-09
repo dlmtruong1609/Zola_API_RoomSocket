@@ -74,7 +74,7 @@ const validateCreateGroup = () => {
     check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 1, max: 32 }),
     check('list_user_id', CONSTANT.LIST_USER_ID_REQUIRED).not().isEmpty(),
     check('list_user_id').custom((value, { req }) => {
-      if (value.length < 2) {
+      if (value.length < 1) {
         throw new Error(CONSTANT.NUMBER_USER_MUST_GREATER_THAN_1)
       }
       return true
