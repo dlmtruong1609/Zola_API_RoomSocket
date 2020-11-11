@@ -5,6 +5,7 @@ const CONSTANT = require('../utils/room.constant')
 const { validationResult } = require('express-validator')
 const request = require('request')
 const util = require('util')
+const mongoose = require('mongoose')
 
 const roomDao = require('../daos/room.dao')
 require('dotenv').config()
@@ -47,6 +48,7 @@ const createSingle = async (req, res) => {
   const errs = validationResult(req).formatWith(errorFormatter)
   //
   const room = {
+    _id: mongoose.Types.ObjectId(),
     name: req.body.name,
     group: false,
     created_At: new Date()
@@ -56,7 +58,7 @@ const createSingle = async (req, res) => {
     if (success) {
       res
         .status(201)
-        .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null))
+        .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, room))
     }
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -67,6 +69,7 @@ const createSingle = async (req, res) => {
 const createGroup = async (req, res) => {
   const errs = validationResult(req).formatWith(errorFormatter)
   const room = {
+    _id: mongoose.Types.ObjectId(),
     name: req.body.name,
     group: true,
     created_At: new Date()
@@ -87,7 +90,7 @@ const createGroup = async (req, res) => {
     if (success) {
       res
         .status(201)
-        .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, null))
+        .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, room))
     }
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
