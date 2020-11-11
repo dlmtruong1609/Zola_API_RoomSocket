@@ -68,7 +68,7 @@ const createGroup = async (req, res) => {
   const errs = validationResult(req).formatWith(errorFormatter)
   const room = {
     name: req.body.name,
-    group: false,
+    group: true,
     created_At: new Date()
   }
   // decode
