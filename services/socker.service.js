@@ -80,6 +80,11 @@ const connection = (socket) => {
       }
     })
   })
+
+  socket.on('rooms_request', async (userId) => {
+    const rooms = await Room.find({ users: { $elemMatch: { id: userId } } })
+    global.io.sockets.emit('load_rooms', rooms)
+  })
   socket.on('leave', (room) => {
     socket.leave(room)
   })
