@@ -52,6 +52,7 @@ const connection = (socket) => {
     }
     // global.io.sockets.emit('is_online', '🔵 <i>' + socket.user.name + ' connected</i>')
   })
+
   socket.on('send_and_recive', async (your_message) => {
     const room = await Room.findById(socket.info.roomId)
     if (room) {
