@@ -11,7 +11,6 @@ const connection = (socket) => {
   socket.on('join', async (info) => {
     // client.join(name)
     socket.info = info
-    console.log(info)
     const room = checkForHexRegExp.test(info.roomId) ? await Room.findById(info.roomId) : undefined
     // new room
     const roomData = {
@@ -31,12 +30,18 @@ const connection = (socket) => {
       const roomSingle = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.list_user[0].id) } } }, { users: { $elemMatch: { id: Number(socket.info.list_user[1].id) } } }, { group: false }] })
       if (!roomSingle) {
         await roomDao.createSingle(roomData, list_user_id)
+        // refresh rooms
+        const rooms = await Room.find({ users: { $elemMatch: { id: socket.info.list_user[socket.info.positionUserCurrent].id } } })
+        global.io.sockets.emit('load_rooms', rooms)
         return
       }
     }
     if (!room) {
       roomData.group = true
       await roomDao.createGroup(roomData, list_user_id)
+      // refresh rooms
+      const rooms = await Room.find({ users: { $elemMatch: { id: socket.info.list_user[socket.info.positionUserCurrent].id } } })
+      global.io.sockets.emit('load_rooms', rooms)
     } else {
       socket.join(room._id)
       for (let index = 0; index < room.messages.length; index++) {
