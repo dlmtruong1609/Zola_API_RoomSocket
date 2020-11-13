@@ -14,6 +14,7 @@ const connection = (socket) => {
     const room = checkForHexRegExp.test(info.roomId) ? await Room.findById(info.roomId) : undefined
     // new room
     const roomData = {
+      _id: mongoose.Types.ObjectId(),
       name: '',
       group: false,
       created_At: new Date()
@@ -32,6 +33,7 @@ const connection = (socket) => {
         await roomDao.createSingle(roomData, list_user_id)
         // refresh rooms
         const rooms = await Room.find({ users: { $elemMatch: { id: socket.info.list_user[socket.info.positionUserCurrent].id } } })
+        global.io.sockets.emit('newRoom', roomData)
         global.io.sockets.emit('load_rooms', rooms)
         return
       }
@@ -41,6 +43,7 @@ const connection = (socket) => {
       await roomDao.createGroup(roomData, list_user_id)
       // refresh rooms
       const rooms = await Room.find({ users: { $elemMatch: { id: socket.info.list_user[socket.info.positionUserCurrent].id } } })
+      global.io.sockets.emit('newRoom', roomData)
       global.io.sockets.emit('load_rooms', rooms)
     } else {
       socket.join(room._id)
