@@ -47,11 +47,15 @@ const connection = (socket) => {
       global.io.sockets.emit('load_rooms', rooms)
     } else {
       socket.join(room._id)
+      const message = []
+      const userCurrentLogin = room.users.find((item) => item.id === socket.info.list_user[socket.info.positionUserCurrent].id)
+      console.log(userCurrentLogin)
       for (let index = 0; index < room.messages.length; index++) {
-        if (room.messages[index].createdAt > room.users[socket.info.positionUserCurrent].startDate) {
-          global.io.sockets.in(room._id).emit('load_message', info.list_user[info.positionUserCurrent].id, room.messages[index])
+        if (room.messages[index].createdAt > userCurrentLogin.startDate) {
+          await message.push(room.messages[index])
         }
       }
+      global.io.sockets.in(room._id).emit('load_message', message)
     }
     // global.io.sockets.emit('is_online', '🔵 <i>' + socket.user.name + ' connected</i>')
   })
