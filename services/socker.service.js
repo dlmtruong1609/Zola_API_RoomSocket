@@ -19,6 +19,8 @@ const connection = (socket) => {
       group: false,
       created_At: new Date()
     }
+    // find rooms sort by created_At
+    const rooms = await Room.find({ users: { $elemMatch: { id: socket.info.list_user[socket.info.positionUserCurrent].id } } }).sort({ 'messages.createdAt': -1, created_At: -1 })
     // check room id hop le va tao room voi id moi
     checkForHexRegExp.test(info.roomId) ? roomData._id = info.roomId : info.roomId = ''
     const list_user_id = []
@@ -32,7 +34,6 @@ const connection = (socket) => {
       if (!roomSingle) {
         await roomDao.createSingle(roomData, list_user_id)
         // refresh rooms
-        const rooms = await Room.find({ users: { $elemMatch: { id: socket.info.list_user[socket.info.positionUserCurrent].id } } })
         global.io.sockets.emit('newRoom', roomData)
         global.io.sockets.emit('load_rooms', rooms)
         return
@@ -42,7 +43,6 @@ const connection = (socket) => {
       roomData.group = true
       await roomDao.createGroup(roomData, list_user_id)
       // refresh rooms
-      const rooms = await Room.find({ users: { $elemMatch: { id: socket.info.list_user[socket.info.positionUserCurrent].id } } })
       global.io.sockets.emit('newRoom', roomData)
       global.io.sockets.emit('load_rooms', rooms)
     } else {
@@ -83,6 +83,7 @@ const connection = (socket) => {
       global.io.sockets.in(room._id).emit('send_and_recive', messages)
     }
   })
+
   socket.on('delete_message', async (your_message_id) => {
     const room = await Room.findById(socket.info.roomId)
     // cach nay anh huong perform
@@ -95,9 +96,11 @@ const connection = (socket) => {
   })
 
   socket.on('rooms_request', async (userId) => {
-    const rooms = await Room.find({ users: { $elemMatch: { id: userId } } })
+    // find rooms sort by created_At
+    const rooms = await Room.find({ users: { $elemMatch: { id: userId } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
     global.io.sockets.emit('load_rooms', rooms)
   })
+
   socket.on('leave', (room) => {
     socket.leave(room)
   })

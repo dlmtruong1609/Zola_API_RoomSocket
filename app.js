@@ -11,7 +11,9 @@ require('dotenv').config()
 const cors = require('cors')
 const app = express()
 const http = require('http').Server(app)
-const io = require('socket.io')(http)
+const io = require('socket.io')(http, {
+  transports: ['polling']
+})
 const socker = require('./services/socker.service')
 global.io = io.listen(http)
 global.io.on('connection', socker.connection)

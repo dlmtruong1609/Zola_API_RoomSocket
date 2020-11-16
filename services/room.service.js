@@ -336,6 +336,40 @@ const addMember = async (req, res) => {
     res.status(400).send(response)
   }
 }
+
+const getAllUserRecentMessages = async (req, res) => {
+  try {
+    const decoded = await jwtHelper.verifyToken(
+      req.headers['x-access-token'],
+      accessTokenSecret
+    )
+    const accountDecode = decoded.data
+    const userId = accountDecode.id
+    Room.find(
+      { 'users.id': userId }
+    ).sort({ 'messages.createdAt': -1 }).limit(10).then(result => {
+      let users = []
+      const times_recent = []
+      for (const user of [...result]) {
+        users = [...users, ...user.users]
+        const messages_length = user.messages.length
+        if (messages_length > 0) times_recent.push(user.messages[messages_length - 1].createdAt)
+        else times_recent.push(user.created_At)
+      }
+      // remove duplicate
+      users = [...users].filter((user, index, array) => array.findIndex(item => (item.id === user.id)) === index)
+      // remove self
+      users.splice(users.findIndex(user => user.id === userId), 1)
+      res
+        .status(200)
+        .send(
+          new Response(false, CONSTANT.FIND_SUCCESS, times_recent || null)
+        )
+    })
+  } catch (error) {
+    res.status(500).send(new Response(true, error, error))
+  }
+}
 module.exports = {
   createSingle: createSingle,
   createGroup: createGroup,
@@ -344,5 +378,6 @@ module.exports = {
   deleteRoom: deleteRoom,
   exitRoom: exitRoom,
   updateRoom: updateRoom,
-  addMember: addMember
+  addMember: addMember,
+  getAllUserRecentMessages: getAllUserRecentMessages
 }
