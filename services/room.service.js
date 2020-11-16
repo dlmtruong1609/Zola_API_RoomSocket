@@ -1,13 +1,14 @@
 /* eslint-disable camelcase */
 const Room = require('../models/room.model')
 const Response = require('../utils/response')
-const CONSTANT = require('../utils/room.constant')
+const CONSTANT = require('../constants/room.constant')
 const { validationResult } = require('express-validator')
 const request = require('request')
 const util = require('util')
 const mongoose = require('mongoose')
 
 const roomDao = require('../daos/room.dao')
+const time = require('../utils/time')
 require('dotenv').config()
 
 const jwtHelper = require('../helpers/jwt.helper')
@@ -84,7 +85,6 @@ const createGroup = async (req, res) => {
   //
   const list_user_id = req.body.list_user_id
   list_user_id.push(userId)
-  console.log('acsvas' + list_user_id)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
     const success = await roomDao.createGroup(room, list_user_id)
     if (success) {
@@ -352,7 +352,7 @@ const getAllUserRecentMessages = async (req, res) => {
       for (const user of [...result]) {
         const messages_length = user.messages.length
         for (let index = 0; index < user.users.length; index++) {
-          user.users[index].lastTime = await messages_length !== 0 ? roomDao.timeDifference(new Date(), user.messages[messages_length - 1].createdAt) : roomDao.timeDifference(new Date(), user.created_At)
+          user.users[index].lastTime = await messages_length !== 0 ? time.timeDifference(new Date(), user.messages[messages_length - 1].createdAt) : time.timeDifference(new Date(), user.created_At)
         }
         users = [...users, ...user.users]
       }

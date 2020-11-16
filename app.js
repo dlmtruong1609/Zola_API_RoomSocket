@@ -4,7 +4,6 @@ const express = require('express')
 const logger = require('morgan')
 
 const roomRouter = require('./routes/room.route')
-const messageRouter = require('./routes/message.route')
 
 require('dotenv').config()
 
@@ -38,7 +37,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.use('/', roomRouter)
-app.use('/', messageRouter)
 app.use(cors())
 
 const mongoose = require('mongoose')

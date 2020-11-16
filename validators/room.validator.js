@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 const { check, query } = require('express-validator')
-const CONSTANT = require('../utils/room.constant')
+const CONSTANT = require('../constants/room.constant')
 const Room = require('../models/room.model')
 const jwtHelper = require('../helpers/jwt.helper')
 
