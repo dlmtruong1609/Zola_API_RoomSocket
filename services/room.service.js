@@ -347,14 +347,14 @@ const getAllUserRecentMessages = async (req, res) => {
     const userId = accountDecode.id
     Room.find(
       { 'users.id': userId }
-    ).sort({ 'messages.createdAt': -1 }).limit(10).then(result => {
+    ).sort({ 'messages.createdAt': -1 }).limit(10).then(async result => {
       let users = []
-      const times_recent = []
       for (const user of [...result]) {
-        users = [...users, ...user.users]
         const messages_length = user.messages.length
-        if (messages_length > 0) times_recent.push(user.messages[messages_length - 1].createdAt)
-        else times_recent.push(user.created_At)
+        for (let index = 0; index < user.users.length; index++) {
+          user.users[index].lastTime = await messages_length !== 0 ? roomDao.timeDifference(new Date(), user.messages[messages_length - 1].createdAt) : roomDao.timeDifference(new Date(), user.created_At)
+        }
+        users = [...users, ...user.users]
       }
       // remove duplicate
       users = [...users].filter((user, index, array) => array.findIndex(item => (item.id === user.id)) === index)
@@ -363,13 +363,14 @@ const getAllUserRecentMessages = async (req, res) => {
       res
         .status(200)
         .send(
-          new Response(false, CONSTANT.FIND_SUCCESS, times_recent || null)
+          new Response(false, CONSTANT.FIND_SUCCESS, users || null)
         )
     })
   } catch (error) {
     res.status(500).send(new Response(true, error, error))
   }
 }
+
 module.exports = {
   createSingle: createSingle,
   createGroup: createGroup,
