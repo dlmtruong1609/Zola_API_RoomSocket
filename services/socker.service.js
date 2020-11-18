@@ -37,28 +37,29 @@ const connection = (socket) => {
         global.io.sockets.emit('newRoom', roomData)
         global.io.sockets.emit('load_rooms', rooms)
         return
+      } else {
+        loadRoom(roomSingle)
+        socket.info.roomId = roomSingle._id
       }
     }
-    if (!room) {
-      roomData.group = true
-      await roomDao.createGroup(roomData, list_user_id)
-      // refresh rooms
-      global.io.sockets.emit('newRoom', roomData)
-      global.io.sockets.emit('load_rooms', rooms)
-    } else {
-      socket.join(room._id)
-      const message = []
-      const userCurrentLogin = room.users.find((item) => item.id === socket.info.list_user[socket.info.positionUserCurrent].id)
-      console.log(userCurrentLogin)
-      for (let index = 0; index < room.messages.length; index++) {
-        if (room.messages[index].createdAt > userCurrentLogin.startDate) {
-          await message.push(room.messages[index])
-        }
-      }
-      global.io.sockets.in(room._id).emit('load_message', message)
+    if (room) {
+      loadRoom(room)
     }
     // global.io.sockets.emit('is_online', '🔵 <i>' + socket.user.name + ' connected</i>')
   })
+
+  const loadRoom = async (room) => {
+    socket.join(room._id)
+    const message = []
+    const userCurrentLogin = room.users.find((item) => item.id === socket.info.list_user[socket.info.positionUserCurrent].id)
+    console.log(userCurrentLogin)
+    for (let index = 0; index < room.messages.length; index++) {
+      if (room.messages[index].createdAt > userCurrentLogin.startDate) {
+        await message.push(room.messages[index])
+      }
+    }
+    global.io.sockets.in(room._id).emit('load_message', message)
+  }
 
   socket.on('send_and_recive', async (your_message) => {
     const room = await Room.findById(socket.info.roomId)
