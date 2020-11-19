@@ -61,7 +61,7 @@ const connection = (socket) => {
     global.io.sockets.in(room._id).emit('load_message', message)
   }
 
-  socket.on('send_and_recive', async (your_message) => {
+  socket.on('send_and_recive', async (obj) => {
     const room = await Room.findById(socket.info.roomId)
     if (room) {
       socket.join(room._id)
@@ -69,8 +69,8 @@ const connection = (socket) => {
       const messages = {
         user: socket.info.list_user[socket.info.positionUserCurrent],
         _id: id,
-        content: your_message,
-        type: 'String',
+        content: obj.message,
+        type: obj.type,
         createdAt: new Date()
       }
       await Room.update({ _id: room._id, 'users.id': socket.info.list_user[socket.info.positionUserCurrent].id }, {
