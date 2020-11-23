@@ -35,7 +35,7 @@ const connection = (socket) => {
         await roomDao.createSingle(roomData, list_user_id)
         // refresh rooms
         global.io.sockets.emit('newRoom', roomData)
-        global.io.sockets.emit('load_rooms', rooms)
+        load_rooms(socket.info.list_user)
         return
       } else {
         loadRoom(roomSingle)
@@ -82,6 +82,7 @@ const connection = (socket) => {
         }
       })
       global.io.sockets.in(room._id).emit('send_and_recive', messages)
+      load_rooms(socket.info.list_user)
     }
   })
 
@@ -96,16 +97,19 @@ const connection = (socket) => {
     })
   })
 
-  socket.on('load_rooms', async (list_user) => {
-    // find rooms sort by created_At
+  const load_rooms = async (list_user) => {
     for (const user of list_user) {
-      console.log(user)
       const rooms = await Room.find({ users: { $elemMatch: { id: user.id } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
       global.io.sockets.emit('load_rooms', {
         rooms: rooms,
         id: user.id
       })
     }
+  }
+
+  socket.on('load_rooms', async (list_user) => {
+    // find rooms sort by created_At
+    load_rooms(list_user)
   })
 
   socket.on('leave', (room) => {
