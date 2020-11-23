@@ -96,10 +96,16 @@ const connection = (socket) => {
     })
   })
 
-  socket.on('rooms_request', async (userId) => {
+  socket.on('load_rooms', async (list_user) => {
     // find rooms sort by created_At
-    const rooms = await Room.find({ users: { $elemMatch: { id: userId } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
-    global.io.sockets.emit('load_rooms', rooms)
+    for (const user of list_user) {
+      console.log(user)
+      const rooms = await Room.find({ users: { $elemMatch: { id: user.id } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
+      global.io.sockets.emit('load_rooms', {
+        rooms: rooms,
+        id: user.id
+      })
+    }
   })
 
   socket.on('leave', (room) => {
