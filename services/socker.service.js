@@ -34,6 +34,7 @@ const connection = (socket) => {
       if (!roomSingle) {
         await roomDao.createSingle(roomData, list_user_id)
         // refresh rooms
+        socket.info.roomId = roomData._id
         socket.join(roomData._id)
         global.io.sockets.emit('newRoom', roomData)
         load_rooms(socket.info.list_user)
@@ -50,6 +51,7 @@ const connection = (socket) => {
   })
 
   const loadRoom = async (room) => {
+    socket.info.roomId = room._id
     socket.join(room._id)
     const message = []
     const userCurrentLogin = room.users.find((item) => item.id === socket.info.list_user[socket.info.positionUserCurrent].id)
