@@ -34,6 +34,7 @@ const connection = (socket) => {
       if (!roomSingle) {
         await roomDao.createSingle(roomData, list_user_id)
         // refresh rooms
+        socket.join(roomData._id)
         global.io.sockets.emit('newRoom', roomData)
         load_rooms(socket.info.list_user)
         return
