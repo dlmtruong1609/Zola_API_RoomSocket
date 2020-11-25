@@ -100,16 +100,6 @@ const connection = (socket) => {
     })
   })
 
-  const load_rooms = async (list_user) => {
-    for (const user of list_user) {
-      const rooms = await Room.find({ users: { $elemMatch: { id: user.id } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
-      global.io.sockets.emit('load_rooms', {
-        rooms: rooms,
-        id: user.id
-      })
-    }
-  }
-
   socket.on('load_rooms', async (list_user) => {
     // find rooms sort by created_At
     load_rooms(list_user)
@@ -124,6 +114,16 @@ const connection = (socket) => {
     // console.log(socket.user.name + 'disconnect')
   })
 }
+const load_rooms = async (list_user) => {
+  for (const user of list_user) {
+    const rooms = await Room.find({ users: { $elemMatch: { id: user.id } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
+    global.io.sockets.emit('load_rooms', {
+      rooms: rooms,
+      id: user.id
+    })
+  }
+}
 module.exports = {
-  connection: connection
+  connection: connection,
+  load_rooms: load_rooms
 }
