@@ -8,6 +8,7 @@ const util = require('util')
 const mongoose = require('mongoose')
 
 const roomDao = require('../daos/room.dao')
+const socketService = require('../services/socker.service')
 const time = require('../utils/time')
 require('dotenv').config()
 
@@ -88,6 +89,7 @@ const createGroup = async (req, res) => {
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
     const success = await roomDao.createGroup(room, list_user_id)
     if (success) {
+      socketService.load_rooms(list_user_id)
       res
         .status(201)
         .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, room))
