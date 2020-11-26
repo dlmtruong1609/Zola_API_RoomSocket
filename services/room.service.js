@@ -89,7 +89,13 @@ const createGroup = async (req, res) => {
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
     const success = await roomDao.createGroup(room, list_user_id)
     if (success) {
-      socketService.load_rooms(list_user_id)
+      const list_user = []
+      for (const id of list_user_id) {
+        await list_user.push({
+          id: id
+        })
+      }
+      socketService.load_rooms(list_user)
       res
         .status(201)
         .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, room))
