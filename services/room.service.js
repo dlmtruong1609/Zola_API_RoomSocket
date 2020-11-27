@@ -166,6 +166,9 @@ const deleteRoom = async (req, res) => {
 
   const errs = validationResult(req).formatWith(errorFormatter)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
+    socketService.load_rooms([{
+      id: userId
+    }])
     Room.findOneAndUpdate(
       {
         _id: id,
@@ -212,6 +215,9 @@ const exitRoom = async (req, res) => {
     const room = await Room.findOne({
       _id: id,
       'users.id': userId
+    })
+    socketService.load_rooms({
+      _id: userId
     })
     Room.findOneAndUpdate(
       {
