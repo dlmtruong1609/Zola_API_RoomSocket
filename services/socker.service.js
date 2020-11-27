@@ -101,7 +101,6 @@ const connection = (socket) => {
   })
 
   socket.on('load_rooms', async (list_user) => {
-    console.log('123' + list_user)
     // find rooms sort by created_At
     load_rooms(list_user)
   })
@@ -116,15 +115,13 @@ const connection = (socket) => {
   })
 }
 const load_rooms = async (list_user) => {
-  const data = []
   for (const user of list_user) {
     const rooms = await Room.find({ users: { $elemMatch: { id: user.id } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
-    data.push({
+    global.io.sockets.emit('load_rooms', {
       rooms: rooms,
       id: user.id
     })
   }
-  global.io.sockets.emit('load_rooms', data)
 }
 module.exports = {
   connection: connection,
