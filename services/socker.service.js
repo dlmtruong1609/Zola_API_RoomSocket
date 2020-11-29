@@ -9,6 +9,7 @@ const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
 
 const connection = (socket) => {
   socket.on('join', async (info) => {
+    console.log('Join')
     // client.join(name)
     socket.info = info
     const room = checkForHexRegExp.test(info.roomId) ? await Room.findById(info.roomId) : undefined
@@ -28,6 +29,7 @@ const connection = (socket) => {
       await list_user_id.push(info.list_user[index].id)
     }
     //
+    console.log(room)
     if (!room && info.list_user.length === 2) {
       // room nay de kiem tra if chi co 2 user
       const roomSingle = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.list_user[0].id) } } }, { users: { $elemMatch: { id: Number(socket.info.list_user[1].id) } } }, { group: false }] })
@@ -40,6 +42,7 @@ const connection = (socket) => {
         load_rooms(socket.info.list_user)
         return
       } else {
+        console.log(roomSingle)
         loadRoom(roomSingle)
         socket.info.roomId = roomSingle._id
       }
