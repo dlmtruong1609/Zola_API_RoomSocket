@@ -25,6 +25,7 @@ const validateCreateSingle = () => {
       }
       const requestPromise = util.promisify(request)
       const user = await requestPromise(options)
+      console.log(!JSON.parse(user.body))
       if (!JSON.parse(user.body).data) {
         throw new Error(CONSTANT.USER_NOT_FOUND)
       }

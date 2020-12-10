@@ -3,14 +3,29 @@
 /* eslint-disable camelcase */
 const Room = require('../models/room.model')
 
-const roomDao = require('../daos/room.dao')
+const roomService = require('./room.service')
 const mongoose = require('mongoose')
 const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
 
 const connection = (socket) => {
   socket.on('join', async (info) => {
-    console.log('Join')
-    // client.join(name)
+    // data example from client
+    // const info = {
+    //   list_user: [
+    //     {
+    //       name: 'Magic Nga',
+    //       id: 60
+    //     },
+    //     {
+    //       name: 'Vi Nam',
+    //       id: 19
+    //     }
+    //   ],
+    //   roomId: '5fc26dadd5c4f700282c5333',
+    //   // if the group Room ID is Required
+    //   // If the single room then field roomId is not required
+    //   positionUserCurrent: 1 // This is the location of the currently logged in user (now is Vi Nam)
+    // }
     socket.info = info
     const room = checkForHexRegExp.test(info.roomId) ? await Room.findById(info.roomId) : undefined
     // new room
@@ -29,12 +44,11 @@ const connection = (socket) => {
       await list_user_id.push(info.list_user[index].id)
     }
     //
-    console.log(room)
     if (!room && info.list_user.length === 2) {
       // room nay de kiem tra if chi co 2 user
       const roomSingle = await Room.findOne({ $and: [{ users: { $elemMatch: { id: Number(socket.info.list_user[0].id) } } }, { users: { $elemMatch: { id: Number(socket.info.list_user[1].id) } } }, { group: false }] })
       if (!roomSingle) {
-        await roomDao.createSingle(roomData, list_user_id)
+        await roomService.createSingle(roomData, list_user_id)
         // refresh rooms
         socket.info.roomId = roomData._id
         socket.join(roomData._id)
@@ -42,7 +56,6 @@ const connection = (socket) => {
         load_rooms(socket.info.list_user)
         return
       } else {
-        console.log(roomSingle)
         loadRoom(roomSingle)
         socket.info.roomId = roomSingle._id
       }
@@ -53,6 +66,10 @@ const connection = (socket) => {
     // global.io.sockets.emit('is_online', '🔵 <i>' + socket.user.name + ' connected</i>')
   })
 
+  /**
+ * This method to load detail room
+ * @param {*} room
+ */
   const loadRoom = async (room) => {
     socket.info.roomId = room._id
     socket.join(room._id)
@@ -67,6 +84,12 @@ const connection = (socket) => {
     global.io.sockets.in(room._id).emit('load_message', message)
   }
 
+  /* data example
+  obj = {
+    message: "Hello",
+    type: "string" or image, video...
+  }
+  */
   socket.on('send_and_recive', async (obj) => {
     const room = await Room.findById(socket.info.roomId)
     if (room) {
@@ -103,6 +126,7 @@ const connection = (socket) => {
     })
   })
 
+  /* catch event emit from client to load all room of user */
   socket.on('load_rooms', async (list_user) => {
     // find rooms sort by created_At
     load_rooms(list_user)
@@ -117,6 +141,8 @@ const connection = (socket) => {
     // console.log(socket.user.name + 'disconnect')
   })
 }
+
+/* method to load all room of user */
 const load_rooms = async (list_user) => {
   for (const user of list_user) {
     const rooms = await Room.find({ users: { $elemMatch: { id: user.id } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
