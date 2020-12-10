@@ -135,7 +135,7 @@ const getAll = async (req, res) => {
       customLabels: myCustomLabels,
       sort: { created_At: -1 }
     }
-    Room.paginate(
+    await Room.paginate(
       { users: { $elemMatch: { id: userId } } },
       options,
       // eslint-disable-next-line handle-callback-err
@@ -159,7 +159,7 @@ const deleteRoom = async (req, res) => {
 
   const errs = validationResult(req).formatWith(errorFormatter)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
-    Room.findOneAndUpdate(
+    await Room.findOneAndUpdate(
       {
         _id: id,
         'users.id': userId
@@ -196,7 +196,7 @@ const exitRoom = async (req, res) => {
       _id: id,
       'users.id': userId
     })
-    Room.findOneAndUpdate(
+    await Room.findOneAndUpdate(
       {
         _id: id,
         'users.id': userId
