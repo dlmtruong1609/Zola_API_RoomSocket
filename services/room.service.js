@@ -216,9 +216,11 @@ const exitRoom = async (req, res) => {
       _id: id,
       'users.id': userId
     })
-    socketService.load_rooms({
-      _id: userId
-    })
+    socketService.load_rooms([
+      {
+        id: userId
+      }
+    ])
     Room.findOneAndUpdate(
       {
         _id: id,
