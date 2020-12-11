@@ -228,7 +228,7 @@ const updateRoom = async (req, res) => {
   const name = req.body.name
   const errs = validationResult(req).formatWith(errorFormatter)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
-    Room.findOneAndUpdate(
+    await Room.findOneAndUpdate(
       {
         _id: id,
         'users.id': userId
