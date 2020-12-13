@@ -62,7 +62,7 @@ const connection = (socket) => {
           type: 'string',
           createdAt: new Date()
         }
-        global.io.sockets.in(room._id).emit('send_and_recive', messages)
+        global.io.sockets.in(roomData._id).emit('send_and_recive', messages)
         // load rooms
         load_rooms(socket.info.list_user)
         return
