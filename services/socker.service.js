@@ -27,7 +27,8 @@ const connection = (socket) => {
     //   positionUserCurrent: 1 // This is the location of the currently logged in user (now is Vi Nam)
     // }
     socket.info = info
-    const room = checkForHexRegExp.test(info.roomId) ? await Room.findById(info.roomId) : undefined
+    let room
+    if (checkForHexRegExp.test(info.roomId)) room = await Room.findById(info.roomId)
     // new room
     const roomData = {
       _id: mongoose.Types.ObjectId(),

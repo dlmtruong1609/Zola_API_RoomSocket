@@ -1,6 +1,13 @@
 # CHAT ZOLA
 
 This is application chat with socket
+# # Demo: 
+CHAT: `http://zolavn.cf`
+APP: Download [here]()
+# # Frontend Project
+- Web application: `https://gitlab.com/chatonline/zola-client`
+- Mobile application: `https://gitlab.com/chatonline/mobile-fe`
+# # Server
 ## Quick start
 ### Prerequisites
 
