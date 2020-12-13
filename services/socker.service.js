@@ -54,6 +54,16 @@ const connection = (socket) => {
         socket.info.roomId = roomData._id
         socket.join(roomData._id)
         global.io.sockets.emit('newRoom', roomData)
+        // first hello
+        const messages = {
+          user: socket.info.list_user[socket.info.positionUserCurrent],
+          _id: socket.info.list_user[socket.info.positionUserCurrent].id,
+          content: 'Xin chào mình làm quen nha',
+          type: 'string',
+          createdAt: new Date()
+        }
+        global.io.sockets.in(room._id).emit('send_and_recive', messages)
+        // load rooms
         load_rooms(socket.info.list_user)
         return
       } else {
