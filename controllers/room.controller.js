@@ -228,7 +228,7 @@ const updateRoom = async (req, res) => {
   const name = req.body.name
   const errs = validationResult(req).formatWith(errorFormatter)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
-    await Room.findOneAndUpdate(
+    const room = await Room.findOneAndUpdate(
       {
         _id: id,
         'users.id': userId
@@ -237,6 +237,7 @@ const updateRoom = async (req, res) => {
         name: name
       }
     )
+    socketService.load_rooms(room.users)
     res.status(200).send(new Response(false, CONSTANT.UPDATE_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -276,7 +277,7 @@ const addMember = async (req, res) => {
       list_user.push(user)
     }
     //
-    Room.findOneAndUpdate(
+    const room = await Room.findOneAndUpdate(
       {
         _id: id,
         'users.id': userId
@@ -289,6 +290,7 @@ const addMember = async (req, res) => {
         }
       }
     )
+    socketService.load_rooms(room.users)
     res.status(200).send(new Response(false, CONSTANT.ADD_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
