@@ -15,12 +15,11 @@ const http = require('http').Server(app)
 const io = require('socket.io')(http, {
   transports: ['polling']
 })
-// scale instance socket with redis
-const redisAdapter = require('socket.io-redis')
-const redis = require('redis')
-const pubClient = redis.createClient('19403', 'redis-19403.c10.us-east-1-4.ec2.cloud.redislabs.com', { auth_pass: process.env.REDIS_PASS })
-const subClient = pubClient.duplicate()
-io.adapter(redisAdapter({ pubClient, subClient }))
+// const redisAdapter = require('socket.io-redis')
+// const redis = require('redis')
+// const pubClient = redis.createClient('19403', 'redis-19403.c10.us-east-1-4.ec2.cloud.redislabs.com', { auth_pass: process.env.REDIS_PASS })
+// const subClient = pubClient.duplicate()
+// io.adapter(redisAdapter({ pubClient, subClient }))
 const socker = require('./services/socker.service')
 global.io = io.listen(http)
 global.io.on('connection', socker.connection)
