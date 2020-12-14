@@ -135,8 +135,8 @@ const connection = (socket) => {
     load_rooms(list_user)
   })
 
-  socket.on('leave', (room) => {
-    socket.leave(room)
+  socket.on('leave', (roomId) => {
+    socket.leave(roomId)
   })
   // event fired when the chat room is disconnected
   socket.on('disconnect', () => {
