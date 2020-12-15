@@ -19,9 +19,9 @@
     "morgan": "~1.9.1",
     "redis": "^3.0.2",
     "request": "^2.88.2",
-    "socker.io": "0.0.0-alpha-beta",
     "socket.io": "^2.3.0",
-    "socket.io-redis": "^6.0.1"
+    "socket.io-redis": "^5.0.0",
+    "socket.io-adapter": "~2.0.0"
   },
   "devDependencies": {
     "eslint": "^7.11.0",
