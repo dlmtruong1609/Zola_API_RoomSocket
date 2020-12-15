@@ -2,6 +2,7 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable camelcase */
 const Room = require('../models/room.model')
+
 const roomService = require('./room.service')
 const mongoose = require('mongoose')
 const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
@@ -98,7 +99,7 @@ const connection = (socket) => {
       socket.join(room._id)
       const id = mongoose.Types.ObjectId()
       const messages = {
-        userId: socket.info.list_user[socket.info.positionUserCurrent].id,
+        user: socket.info.list_user[socket.info.positionUserCurrent],
         _id: id,
         content: obj.message,
         type: obj.type,

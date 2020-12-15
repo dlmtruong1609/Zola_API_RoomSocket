@@ -22,7 +22,7 @@ const createSingle = async (room, list_user_id = []) => {
       startDate: new Date(),
       deleted: false
     }
-    room.users.push(user.id)
+    room.users.push(user)
   }
   const success = await room.save()
   return success
@@ -47,7 +47,7 @@ const createGroup = async (room, list_user_id = []) => {
       startDate: new Date(),
       deleted: false
     }
-    room.users.push(user.id)
+    room.users.push(user)
   }
   const success = await room.save()
   return success
