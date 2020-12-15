@@ -24,4 +24,6 @@ router.put('/api/v0/rooms/members', roomValidator.validateAddMember(), roomContr
 
 router.get('/api/v0/rooms/messages/recent', roomController.getAllUserRecentMessages)
 
+router.put('/api/v0/rooms/users/:id', roomController.updateUserInAllRoom)
+
 module.exports = router

@@ -53,7 +53,16 @@ const createGroup = async (room, list_user_id = []) => {
   return success
 }
 
+const updateUserOfRoom = async (user) => {
+  console.log('avatar' + user.avatar)
+  await Room.updateMany({ 'users.id': Number(user.id) }, {
+    $set: { 'users.$.name': user.name, 'users.$.avatar': user.avatar }
+  })
+  return 'Success'
+}
+
 module.exports = {
   createSingle: createSingle,
-  createGroup: createGroup
+  createGroup: createGroup,
+  updateUserOfRoom: updateUserOfRoom
 }

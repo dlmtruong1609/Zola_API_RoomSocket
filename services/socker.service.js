@@ -55,7 +55,8 @@ const connection = (socket) => {
         socket.join(roomData._id)
         global.io.sockets.emit('newRoom', roomData)
 
-        // notify for client to load rooms
+        // load rooms
+        load_rooms(socket.info.list_user)
         return
       } else {
         loadRoom(roomSingle)
@@ -77,7 +78,6 @@ const connection = (socket) => {
     socket.join(room._id)
     const message = []
     const userCurrentLogin = room.users.find((item) => item.id === socket.info.list_user[socket.info.positionUserCurrent].id)
-
     console.log(userCurrentLogin)
     for (let index = 0; index < room.messages.length; index++) {
       if (room.messages[index].createdAt > userCurrentLogin.startDate) {
@@ -114,7 +114,7 @@ const connection = (socket) => {
         }
       })
       global.io.sockets.in(room._id).emit('send_and_recive', messages)
-      load_rooms(room._id)
+      load_rooms(socket.info.list_user)
     }
   })
 
@@ -130,9 +130,9 @@ const connection = (socket) => {
   })
 
   /* catch event emit from client to load all room of user */
-  socket.on('load_rooms', async (idRoom) => {
+  socket.on('load_rooms', async (list_user) => {
     // find rooms sort by created_At
-    load_rooms(idRoom)
+    load_rooms(list_user)
   })
 
   socket.on('leave', (roomId) => {
@@ -145,11 +145,15 @@ const connection = (socket) => {
   })
 }
 
-/* method to notify load rooms for client */
-const load_rooms = async (idRoom) => {
-  global.io.sockets.emit('load_rooms', {
-    rooms: idRoom
-  })
+/* method to load all room of user */
+const load_rooms = async (list_user) => {
+  for (const user of list_user) {
+    const rooms = await Room.find({ users: { $elemMatch: { id: user.id } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
+    global.io.sockets.emit('load_rooms', {
+      rooms: rooms,
+      id: user.id
+    })
+  }
 }
 module.exports = {
   connection: connection,

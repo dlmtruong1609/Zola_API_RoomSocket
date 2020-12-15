@@ -8,6 +8,7 @@ const util = require('util')
 const mongoose = require('mongoose')
 
 const roomService = require('../services/room.service')
+const socketService = require('../services/socker.service')
 const time = require('../utils/time')
 require('dotenv').config()
 
@@ -94,7 +95,7 @@ const createGroup = async (req, res) => {
           id: id
         })
       }
-      global.io.sockets.emit('newRoom', room)
+      socketService.load_rooms(list_user)
       res.status(201).send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, room))
     }
   } else {
@@ -170,6 +171,9 @@ const deleteRoom = async (req, res) => {
         }
       }
     )
+    socketService.load_rooms([{
+      id: userId
+    }])
     res.status(200).send(new Response(false, CONSTANT.DELETE_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -203,7 +207,9 @@ const exitRoom = async (req, res) => {
         })
       }
     )
-
+    socketService.load_rooms([{
+      id: userId
+    }])
     res.status(200).send(new Response(false, CONSTANT.EXIT_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -231,9 +237,7 @@ const updateRoom = async (req, res) => {
         name: name
       }
     )
-    global.io.sockets.emit('load_rooms', {
-      rooms: room._id
-    })
+    socketService.load_rooms(room.users)
     res.status(200).send(new Response(false, CONSTANT.UPDATE_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -286,9 +290,7 @@ const addMember = async (req, res) => {
         }
       }
     )
-    global.io.sockets.emit('load_rooms', {
-      rooms: room._id
-    })
+    socketService.load_rooms(room.users)
     res.status(200).send(new Response(false, CONSTANT.ADD_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -325,6 +327,21 @@ const getAllUserRecentMessages = async (req, res) => {
   }
 }
 
+const updateUserInAllRoom = async (req, res) => {
+  const id = req.params.id
+  console.log('id' + id)
+  const name = req.body.name
+  const avatar = req.body.avatar
+  const user = {
+    id,
+    name,
+    avatar
+  }
+  const result = await roomService.updateUserOfRoom(user)
+  console.log(result)
+  res.status(200).send(new Response(false, CONSTANT.UPDATE_SUCCESS, null))
+}
+
 module.exports = {
   createSingle: createSingle,
   createGroup: createGroup,
@@ -334,5 +351,6 @@ module.exports = {
   exitRoom: exitRoom,
   updateRoom: updateRoom,
   addMember: addMember,
-  getAllUserRecentMessages: getAllUserRecentMessages
+  getAllUserRecentMessages: getAllUserRecentMessages,
+  updateUserInAllRoom: updateUserInAllRoom
 }
