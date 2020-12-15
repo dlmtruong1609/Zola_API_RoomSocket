@@ -8,7 +8,6 @@ const util = require('util')
 const mongoose = require('mongoose')
 
 const roomService = require('../services/room.service')
-const socketService = require('../services/socker.service')
 const time = require('../utils/time')
 require('dotenv').config()
 
@@ -95,7 +94,7 @@ const createGroup = async (req, res) => {
           id: id
         })
       }
-      socketService.load_rooms(list_user)
+      global.io.sockets.emit('newRoom', room)
       res.status(201).send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, room))
     }
   } else {
@@ -171,9 +170,6 @@ const deleteRoom = async (req, res) => {
         }
       }
     )
-    socketService.load_rooms([{
-      id: userId
-    }])
     res.status(200).send(new Response(false, CONSTANT.DELETE_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -207,9 +203,7 @@ const exitRoom = async (req, res) => {
         })
       }
     )
-    socketService.load_rooms([{
-      id: userId
-    }])
+
     res.status(200).send(new Response(false, CONSTANT.EXIT_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -237,7 +231,9 @@ const updateRoom = async (req, res) => {
         name: name
       }
     )
-    socketService.load_rooms(room.users)
+    global.io.sockets.emit('load_rooms', {
+      rooms: room._id
+    })
     res.status(200).send(new Response(false, CONSTANT.UPDATE_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
@@ -290,7 +286,9 @@ const addMember = async (req, res) => {
         }
       }
     )
-    socketService.load_rooms(room.users)
+    global.io.sockets.emit('load_rooms', {
+      rooms: room._id
+    })
     res.status(200).send(new Response(false, CONSTANT.ADD_SUCCESS, null))
   } else {
     const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
