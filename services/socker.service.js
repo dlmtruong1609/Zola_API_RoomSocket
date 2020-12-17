@@ -148,7 +148,7 @@ const connection = (socket) => {
 /* method to load all room of user */
 const load_rooms = async (list_user) => {
   for (const user of list_user) {
-    const rooms = await Room.find({ users: { $elemMatch: { id: user.id } } }).sort({ 'messages.createdAt': -1, created_At: 1 })
+    const rooms = await Room.find({ 'users.id': user.id, 'users.deleted': false }).sort({ 'messages.createdAt': -1, created_At: 1 })
     global.io.sockets.emit('load_rooms', {
       rooms: rooms,
       id: user.id
