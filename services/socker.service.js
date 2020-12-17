@@ -148,7 +148,9 @@ const connection = (socket) => {
   })
   // event fired when the chat room is disconnected
   socket.on('disconnect', (userId) => {
-    global.io.sockets.emit('is-disconnect', userId)
+    if (socket.info && socket.info.list_user) {
+      global.io.sockets.emit('is-disconnect', socket.info.list_user[socket.info.positionUserCurrent].id)
+    }
   })
 }
 
