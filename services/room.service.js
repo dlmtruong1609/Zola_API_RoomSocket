@@ -9,10 +9,8 @@ const createSingle = async (room, list_user_id = []) => {
   for (let index = 0; index < list_user_id.length; index++) {
     const options = await {
       method: 'GET',
-      url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[index]}`,
-      headers: {
-        'x-access-token': process.env.TOKEN_3650
-      }
+      url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[index]}`
+
     }
     const requestPromise = util.promisify(request)
     const result = await requestPromise(options)
@@ -34,10 +32,8 @@ const createGroup = async (room, list_user_id = []) => {
   for (let index = 0; index < list_user_id.length; index++) {
     const options = await {
       method: 'GET',
-      url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[index]}`,
-      headers: {
-        'x-access-token': process.env.TOKEN_3650
-      }
+      url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[index]}`
+
     }
     const requestPromise = await util.promisify(request)
     const result = await requestPromise(options)

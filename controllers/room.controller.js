@@ -124,26 +124,15 @@ const getAll = async (req, res) => {
     )
     const accountDecode = decoded.data
     const userId = accountDecode.id
-    const currentPage = req.query.currentPage
-      // eslint-disable-next-line no-self-assign
-      ? (req.query.currentPage = req.query.currentPage)
-      : (req.query.currentPage = 1)
-    const perPage = req.query.perPage
-    const options = {
-      page: currentPage,
-      limit: perPage,
-      customLabels: myCustomLabels,
-      sort: { created_At: -1 }
+    const rooms = await Room.find({ 'users.id': userId })
+    for (let index = 0; index < rooms.length; index++) {
+      const user = await rooms[index].users.find(item => item.id === userId)
+      if (user.deleted === true) rooms.splice(index, 1)
     }
-    await Room.paginate(
-      { 'users.id': userId, 'users.deleted': false },
-      options,
-      // eslint-disable-next-line handle-callback-err
-      (err, result) => {
-        res.status(200).send(new Response(false, CONSTANT.FIND_SUCCESS, result || null))
-      }
-    )
+
+    res.status(200).send(new Response(false, CONSTANT.FIND_SUCCESS, rooms || null))
   } catch (error) {
+    console.log(error)
     res.status(400).send(new Response(true, error, error))
   }
 }

@@ -99,7 +99,9 @@ const connection = (socket) => {
       socket.join(room._id)
       const id = mongoose.Types.ObjectId()
       const messages = {
-        user: socket.info.list_user[socket.info.positionUserCurrent],
+        user: {
+          id: socket.info.list_user[socket.info.positionUserCurrent].id
+        },
         _id: id,
         content: obj.message,
         type: obj.type,
@@ -148,7 +150,11 @@ const connection = (socket) => {
 /* method to load all room of user */
 const load_rooms = async (list_user) => {
   for (const user of list_user) {
-    const rooms = await Room.find({ 'users.id': user.id, 'users.deleted': false }).sort({ 'messages.createdAt': -1, created_At: 1 })
+    const rooms = await Room.find({ 'users.id': user.id }).sort({ 'messages.createdAt': -1, created_At: 1 })
+    for (let index = 0; index < rooms.length; index++) {
+      const userInRooms = await rooms[index].users.find(item => item.id === user.id)
+      if (userInRooms.deleted === true) rooms.splice(index, 1)
+    }
     global.io.sockets.emit('load_rooms', {
       rooms: rooms,
       id: user.id
