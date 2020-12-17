@@ -8,6 +8,9 @@ const mongoose = require('mongoose')
 const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
 
 const connection = (socket) => {
+  socket.on('is-online', async (userId) => {
+    global.io.sockets.emit('is-online', userId)
+  })
   socket.on('join', async (info) => {
     // data example from client
     // const info = {
@@ -142,8 +145,7 @@ const connection = (socket) => {
   })
   // event fired when the chat room is disconnected
   socket.on('disconnect', () => {
-    // users = this.users.filter((user) => user.socketId !== client.id)
-    // console.log(socket.user.name + 'disconnect')
+    global.io.sockets.emit('is-disconnect', socket.info.list_user[socket.info.positionUserCurrent].id)
   })
 }
 
