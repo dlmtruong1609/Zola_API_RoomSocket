@@ -15,18 +15,6 @@ require('dotenv').config()
 const jwtHelper = require('../helpers/jwt.helper')
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET
 
-const myCustomLabels = {
-  totalDocs: 'itemCount',
-  docs: 'itemsList',
-  limit: 'perPage',
-  page: 'currentPage',
-  nextPage: 'next',
-  prevPage: 'prev',
-  totalPages: 'pageCount',
-  pagingCounter: 'slNo',
-  meta: 'paginator'
-}
-
 // format trả về err
 const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
   // Build your resulting errors however you want! String, object, whatever - it works!
