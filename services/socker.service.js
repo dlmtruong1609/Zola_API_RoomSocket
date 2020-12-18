@@ -2,15 +2,31 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable camelcase */
 const Room = require('../models/room.model')
-
+require('dotenv').config()
 const roomService = require('./room.service')
 const mongoose = require('mongoose')
 const checkForHexRegExp = new RegExp('^[0-9a-fA-F]{24}$')
+const redis = require('redis')
+const client = redis.createClient('19403', 'redis-19403.c10.us-east-1-4.ec2.cloud.redislabs.com', { auth_pass: process.env.REDIS_PASS, detect_buffers: true })
 
 const connection = (socket) => {
   // notify user online
   socket.on('is-online', async (userId) => {
-    global.io.sockets.emit('is-online', userId)
+    client.lrange('list_user_online', 0, -1, async (_err, value) => {
+      if (!value) value = []
+      const userOnline = value
+      const id = await userOnline.find(item => Number(item) === userId)
+      if (!id) {
+        userOnline.push(userId)
+        client.set(`${socket.id}`, userId, (_error, _value) => {
+          console.log(_error)
+        })
+        client.lpush('list_user_online', userId, (_err, _reply) => {
+          console.log(_err)
+        })
+      }
+      global.io.sockets.emit('is-online', userOnline)
+    })
   })
   socket.on('join', async (info) => {
     // data example from client
@@ -82,7 +98,6 @@ const connection = (socket) => {
     socket.join(room._id)
     const message = []
     const userCurrentLogin = room.users.find((item) => item.id === socket.info.list_user[socket.info.positionUserCurrent].id)
-    console.log(userCurrentLogin)
     for (let index = 0; index < room.messages.length; index++) {
       if (room.messages[index].createdAt > userCurrentLogin.startDate) {
         await message.push(room.messages[index])
@@ -147,10 +162,19 @@ const connection = (socket) => {
     socket.leave(roomId)
   })
   // event fired when the chat room is disconnected
-  socket.on('disconnect', (userId) => {
-    if (socket.info && socket.info.list_user) {
-      global.io.sockets.emit('is-disconnect', socket.info.list_user[socket.info.positionUserCurrent].id)
-    }
+  socket.on('disconnect', () => {
+    client.get(`${socket.id}`, (_err, userId) => {
+      console.log(userId + 'as')
+      if (userId) {
+        global.io.sockets.emit('is-disconnect', userId)
+        client.del(`${socket.id}`, (_error, _reply) => {
+          console.log(_error)
+        })
+        client.blpop('list_user_online', userId, (_err, _reply) => {
+          console.log(_err)
+        })
+      }
+    })
   })
 }
 
