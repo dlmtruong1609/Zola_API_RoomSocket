@@ -18,7 +18,8 @@ const createSingle = async (room, list_user_id = []) => {
     const user = await {
       ...JSON.parse(result.body).data,
       startDate: new Date(),
-      deleted: false
+      deleted: false,
+      exited: false
     }
     room.users.push(user)
   }
@@ -41,7 +42,8 @@ const createGroup = async (room, list_user_id = []) => {
     const user = await {
       ...JSON.parse(result.body).data,
       startDate: new Date(),
-      deleted: false
+      deleted: false,
+      exited: false
     }
     room.users.push(user)
   }

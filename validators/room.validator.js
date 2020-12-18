@@ -192,11 +192,6 @@ const validateAddMember = () => {
         if (!JSON.parse(user.body).data) {
           throw new Error(CONSTANT.USER_NOT_FOUND)
         }
-        for (let j = i + 1; j < list_user_id.length; j++) {
-          if (list_user_id[i] === list_user_id[j]) {
-            throw new Error(CONSTANT.ID_USER_DUPLICATE)
-          }
-        }
       }
     }),
     query('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
@@ -211,25 +206,8 @@ const validateAddMember = () => {
       if (!room) {
         throw new Error(CONSTANT.ROOM_NOT_FOUND)
       }
-    }),
-    query('id').custom(async (value, { req }) => {
-      const decoded = await jwtHelper.verifyToken(
-        req.headers['x-access-token'],
-        accessTokenSecret
-      )
-      const accountDecode = decoded.data
-      const userId = accountDecode.id
-      const room = await Room.findOne({ $and: [{ users: { $elemMatch: { id: userId } } }, { _id: value }, { group: true }] })
-
-      const list_user_id = await req.body.list_user_id
-      for (let i = 0; i < room.users.length; i++) {
-        for (let j = 0; j < list_user_id.length; j++) {
-          if (room.users[i].id === list_user_id[j]) {
-            throw new Error(CONSTANT.USER_HAS_PARTICIPATED)
-          }
-        }
-      }
     })
+
   ]
 }
 module.exports = {

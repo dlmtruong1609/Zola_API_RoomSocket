@@ -116,6 +116,7 @@ const getAll = async (req, res) => {
     for (let index = 0; index < rooms.length; index++) {
       const user = await rooms[index].users.find(item => item.id === userId)
       if (user.deleted === true) rooms.splice(index, 1)
+      if (user.exited === true) rooms.splice(index, 1)
     }
 
     res.status(200).send(new Response(false, CONSTANT.FIND_SUCCESS, rooms || null))
@@ -169,7 +170,7 @@ const exitRoom = async (req, res) => {
 
   const errs = validationResult(req).formatWith(errorFormatter)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
-    const room = await Room.findOne({
+    await Room.findOne({
       _id: id,
       'users.id': userId
     })
@@ -179,10 +180,15 @@ const exitRoom = async (req, res) => {
         'users.id': userId
       },
       {
-        users: room.users.filter((user) => {
-          return user.id > userId || user.id < userId
-        })
+        $set: {
+          'users.$.exited': true
+        }
       }
+      // {
+      //   users: room.users.filter((user) => {
+      //     return user.id > userId || user.id < userId
+      //   })
+      // }
     )
     socketService.load_rooms([{
       id: userId
@@ -221,9 +227,8 @@ const updateRoom = async (req, res) => {
     res.status(400).send(response)
   }
 }
-
 const addMember = async (req, res) => {
-  const id = req.query.id
+  const roomId = req.query.id
   const decoded = await jwtHelper.verifyToken(
     req.headers['x-access-token'],
     accessTokenSecret
@@ -233,37 +238,62 @@ const addMember = async (req, res) => {
   const list_user_id = req.body.list_user_id
   const errs = validationResult(req).formatWith(errorFormatter)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
-    const list_user = []
-    // lay user nhung vao room
+    // update list user after add
+    const room = await Room.findById(roomId)
+
     for (let index = 0; index < list_user_id.length; index++) {
-      const options = await {
-        method: 'GET',
-        url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[index]}`
+      const userExited = await room.users.find(user => user.id === list_user_id[index])
+      console.log(list_user_id[index])
+      if (userExited) {
+        await Room.findOneAndUpdate(
+          {
+            _id: roomId,
+            'users.id': list_user_id[index]
+          },
+          {
+            $set: {
+              'users.$.exited': false
+            }
+          }
+        )
+        list_user_id.splice(index, 1)
+        index--
       }
-      const requestPromise = await util.promisify(request)
-      const result = await requestPromise(options)
-      // danh dau de hien thi message tu ngay nay
-      const user = await {
-        ...JSON.parse(result.body).data,
-        startDate: new Date(),
-        deleted: false
-      }
-      list_user.push(user)
     }
-    //
-    const room = await Room.findOneAndUpdate(
-      {
-        _id: id,
-        'users.id': userId
-      },
-      {
-        $push: {
-          users: {
-            $each: list_user
+    // user in room not yet
+    if (list_user_id.length !== 0) {
+      const list_user = []
+      // lay user nhung vao room
+      for (let index = 0; index < list_user_id.length; index++) {
+        const options = await {
+          method: 'GET',
+          url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[index]}`
+        }
+        const requestPromise = await util.promisify(request)
+        const result = await requestPromise(options)
+        // danh dau de hien thi message tu ngay nay
+        const user = await {
+          ...JSON.parse(result.body).data,
+          startDate: new Date(),
+          deleted: false,
+          exited: false
+        }
+        list_user.push(user)
+      }
+      await Room.findOneAndUpdate(
+        {
+          _id: roomId,
+          'users.id': userId
+        },
+        {
+          $push: {
+            users: {
+              $each: list_user
+            }
           }
         }
-      }
-    )
+      )
+    }
     socketService.load_rooms(room.users)
     res.status(200).send(new Response(false, CONSTANT.ADD_SUCCESS, null))
   } else {

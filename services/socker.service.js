@@ -185,6 +185,7 @@ const load_rooms = async (list_user) => {
     for (let index = 0; index < rooms.length; index++) {
       const userInRooms = await rooms[index].users.find(item => item.id === user.id)
       if (userInRooms.deleted === true) rooms.splice(index, 1)
+      if (user.exited === true) rooms.splice(index, 1)
     }
     global.io.sockets.emit('load_rooms', {
       rooms: rooms,
