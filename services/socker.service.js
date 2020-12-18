@@ -193,6 +193,13 @@ const load_rooms = async (list_user) => {
     })
   }
 }
+
+const clearRedis = () => {
+  client.flushdb(function (_err, succeeded) {
+    console.log(_err)
+  })
+}
+clearRedis() // run every server reset
 module.exports = {
   connection: connection,
   load_rooms: load_rooms
