@@ -184,8 +184,14 @@ const load_rooms = async (list_user) => {
     const rooms = await Room.find({ 'users.id': user.id }).sort({ 'messages.createdAt': -1, created_At: 1 })
     for (let index = 0; index < rooms.length; index++) {
       const userInRooms = await rooms[index].users.find(item => item.id === user.id)
-      if (userInRooms.deleted === true) rooms.splice(index, 1)
-      if (userInRooms.exited === true) rooms.splice(index, 1)
+      if (userInRooms.deleted === true) {
+        rooms.splice(index, 1)
+        index--
+      }
+      if (userInRooms.exited === true) {
+        rooms.splice(index, 1)
+        index--
+      }
     }
     global.io.sockets.emit('load_rooms', {
       rooms: rooms,

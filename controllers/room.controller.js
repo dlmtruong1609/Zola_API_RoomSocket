@@ -115,8 +115,14 @@ const getAll = async (req, res) => {
     const rooms = await Room.find({ 'users.id': userId })
     for (let index = 0; index < rooms.length; index++) {
       const user = await rooms[index].users.find(item => item.id === userId)
-      if (user.deleted === true) rooms.splice(index, 1)
-      if (user.exited === true) rooms.splice(index, 1)
+      if (user.deleted === true) {
+        rooms.splice(index, 1)
+        index--
+      }
+      if (user.exited === true) {
+        rooms.splice(index, 1)
+        index--
+      }
     }
 
     res.status(200).send(new Response(false, CONSTANT.FIND_SUCCESS, rooms || null))
