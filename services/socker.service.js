@@ -97,11 +97,8 @@ const connection = (socket) => {
     socket.info.roomId = room._id
     socket.join(room._id)
     const message = []
-    const userCurrentLogin = room.users.find((item) => item.id === socket.info.list_user[socket.info.positionUserCurrent].id)
     for (let index = 0; index < room.messages.length; index++) {
-      if (room.messages[index].createdAt > userCurrentLogin.startDate) {
-        await message.push(room.messages[index])
-      }
+      await message.push(room.messages[index])
     }
     global.io.sockets.in(room._id).emit('load_message', message)
   }
