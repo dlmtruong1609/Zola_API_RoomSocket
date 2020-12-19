@@ -167,13 +167,12 @@ const connection = (socket) => {
       console.log(userId + 'as')
       if (userId) {
         // global.io.sockets.emit('is-online', userId)
-        await client.del(`${socket.id}`, (_error, _reply) => {
+        client.del(`${socket.id}`, (_error, _reply) => {
           console.log(_error)
         })
-        await client.blpop('list_user_online', userId, (_err, _reply) => {
+        client.blpop('list_user_online', userId, (_err, _reply) => {
           client.lrange('list_user_online', 0, -1, async (_err, value) => {
             if (!value) value = []
-            console.log(value + 'asc')
             global.io.sockets.emit('is-online', value)
           })
           console.log(_err)
