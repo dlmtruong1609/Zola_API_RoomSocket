@@ -126,10 +126,12 @@ const connection = (socket) => {
         type: obj.type,
         createdAt: new Date()
       }
-      await Room.update({ _id: room._id, 'users.deleted': true }, {
+      await Room.update({ _id: room._id }, {
         $push: {
           messages: messages
-        },
+        }
+      })
+      await Room.update({ _id: room._id, 'users.deleted': true }, {
         $set: {
           'users.$.deleted': false
         }
