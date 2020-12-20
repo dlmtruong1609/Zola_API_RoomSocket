@@ -12,7 +12,7 @@ router.post('/api/v0/rooms/group', roomValidator.validateCreateGroup(), roomCont
 
 router.get('/api/v0/rooms', roomController.getAll)
 
-router.get('/api/v0/rooms/detail', roomValidator.validateFindById(), roomController.findRoomById)
+router.get('/api/v0/rooms/:id', roomValidator.validateFindById(), roomController.findRoomById)
 
 router.delete('/api/v0/rooms', roomValidator.validateDeleteRoom(), roomController.deleteRoom)
 

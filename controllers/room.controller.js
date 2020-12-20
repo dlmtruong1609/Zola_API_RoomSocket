@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 const Room = require('../models/room.model')
-const Response = require('../utils/response')
 const CONSTANT = require('../constants/room.constant')
 const { validationResult } = require('express-validator')
 const request = require('request')
@@ -48,11 +47,10 @@ const createSingle = async (req, res) => {
     if (success) {
       res
         .status(201)
-        .send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, room))
+        .send(room)
     }
   } else {
-    const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
-    res.status(400).send(response)
+    res.status(400).send(errs.array())
   }
 }
 
@@ -84,23 +82,21 @@ const createGroup = async (req, res) => {
         })
       }
       socketService.load_rooms(list_user)
-      res.status(201).send(new Response(false, CONSTANT.CREATE_ROOM_SUCCESS, room))
+      res.status(201).send(room)
     }
   } else {
-    const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
-    res.status(400).send(response)
+    res.status(400).send(errs.array())
   }
 }
 
 const findRoomById = async (req, res) => {
   const errs = validationResult(req).formatWith(errorFormatter)
   if (typeof errs.array() === 'undefined' || errs.array().length === 0) {
-    const id = req.query.id
+    const id = req.params.id
     const room = await Room.findById(id)
-    res.status(200).send(new Response(false, CONSTANT.FIND_SUCCESS, room))
+    res.status(200).send(room)
   } else {
-    const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
-    res.status(400).send(response)
+    res.status(400).send(errs.array())
   }
 }
 
@@ -125,10 +121,10 @@ const getAll = async (req, res) => {
       }
     }
 
-    res.status(200).send(new Response(false, CONSTANT.FIND_SUCCESS, rooms || null))
+    res.status(200).send(rooms)
   } catch (error) {
     console.log(error)
-    res.status(400).send(new Response(true, error, error))
+    res.status(400).send(error)
   }
 }
 
@@ -158,10 +154,11 @@ const deleteRoom = async (req, res) => {
     socketService.load_rooms([{
       id: userId
     }])
-    res.status(200).send(new Response(false, CONSTANT.DELETE_SUCCESS, null))
+    res.status(200).send({
+      message: CONSTANT.DELETE_SUCCESS
+    })
   } else {
-    const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
-    res.status(400).send(response)
+    res.status(400).send(errs.array())
   }
 }
 
@@ -199,10 +196,11 @@ const exitRoom = async (req, res) => {
     socketService.load_rooms([{
       id: userId
     }])
-    res.status(200).send(new Response(false, CONSTANT.EXIT_SUCCESS, null))
+    res.status(200).send({
+      message: CONSTANT.EXIT_SUCCESS
+    })
   } else {
-    const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
-    res.status(400).send(response)
+    res.status(400).send(errs.array())
   }
 }
 
@@ -227,10 +225,11 @@ const updateRoom = async (req, res) => {
       }
     )
     socketService.load_rooms(room.users)
-    res.status(200).send(new Response(false, CONSTANT.UPDATE_SUCCESS, null))
+    res.status(200).send({
+      message: CONSTANT.UPDATE_SUCCESS
+    })
   } else {
-    const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
-    res.status(400).send(response)
+    res.status(400).send(errs.array())
   }
 }
 const addMember = async (req, res) => {
@@ -301,10 +300,11 @@ const addMember = async (req, res) => {
       )
     }
     socketService.load_rooms(room.users)
-    res.status(200).send(new Response(false, CONSTANT.ADD_SUCCESS, null))
+    res.status(200).send({
+      message: CONSTANT.ADD_SUCCESS
+    })
   } else {
-    const response = new Response(false, CONSTANT.INVALID_VALUE, errs.array())
-    res.status(400).send(response)
+    res.status(400).send(errs.array())
   }
 }
 
@@ -331,9 +331,9 @@ const getAllUserRecentMessages = async (req, res) => {
     users = [...users].filter((user, index, array) => array.findIndex(item => (item.id === user.id)) === index)
     // remove self
     users.splice(users.findIndex(user => user.id === userId), 1)
-    res.status(200).send(new Response(false, CONSTANT.FIND_SUCCESS, users || null))
+    res.status(200).send(users)
   } catch (error) {
-    res.status(400).send(new Response(true, error, error))
+    res.status(400).send(error)
   }
 }
 
@@ -349,7 +349,9 @@ const updateUserInAllRoom = async (req, res) => {
   }
   const result = await roomService.updateUserOfRoom(user)
   console.log(result)
-  res.status(200).send(new Response(false, CONSTANT.UPDATE_SUCCESS, null))
+  res.status(200).send({
+    message: CONSTANT.UPDATE_SUCCESS
+  })
 }
 
 module.exports = {
