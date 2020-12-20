@@ -129,7 +129,7 @@ const getAll = async (req, res) => {
 }
 
 const deleteRoom = async (req, res) => {
-  const id = req.query.id
+  const id = req.params.id
   const decoded = await jwtHelper.verifyToken(
     req.headers['x-access-token'],
     accessTokenSecret
@@ -205,7 +205,7 @@ const exitRoom = async (req, res) => {
 }
 
 const updateRoom = async (req, res) => {
-  const id = req.query.id
+  const id = req.params.id
   const decoded = await jwtHelper.verifyToken(
     req.headers['x-access-token'],
     accessTokenSecret

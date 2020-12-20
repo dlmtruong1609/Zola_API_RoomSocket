@@ -14,11 +14,11 @@ router.get('/api/v0/rooms', roomController.getAll)
 
 router.get('/api/v0/rooms/:id', roomValidator.validateFindById(), roomController.findRoomById)
 
-router.delete('/api/v0/rooms', roomValidator.validateDeleteRoom(), roomController.deleteRoom)
+router.delete('/api/v0/rooms/:id', roomValidator.validateDeleteRoom(), roomController.deleteRoom)
 
 router.put('/api/v0/rooms/exit', roomValidator.validateExitRoom(), roomController.exitRoom)
 
-router.put('/api/v0/rooms', roomValidator.validateUpdateRoom(), roomController.updateRoom)
+router.put('/api/v0/rooms/:id', roomValidator.validateUpdateRoom(), roomController.updateRoom)
 
 router.put('/api/v0/rooms/members', roomValidator.validateAddMember(), roomController.addMember)
 
