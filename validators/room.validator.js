@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-const { check, query } = require('express-validator')
+const { check, query, param } = require('express-validator')
 const CONSTANT = require('../constants/room.constant')
 const Room = require('../models/room.model')
 const jwtHelper = require('../helpers/jwt.helper')
@@ -47,7 +47,7 @@ const validateCreateSingle = () => {
 
 const validateFindById = () => {
   return [
-    query('id').custom(async (value, { req }) => {
+    param('id').custom(async (value, { req }) => {
       const room = await Room.findById(value)
       if (!room) {
         throw new Error(CONSTANT.ROOM_NOT_FOUND)
@@ -108,8 +108,8 @@ const validateCreateGroup = () => {
 
 const validateDeleteRoom = () => {
   return [
-    query('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
-    query('id').custom(async (value, { req }) => {
+    param('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
+    param('id').custom(async (value, { req }) => {
       const decoded = await jwtHelper.verifyToken(
         req.headers['x-access-token'],
         accessTokenSecret
@@ -145,8 +145,8 @@ const validateExitRoom = () => {
 const validateUpdateRoom = () => {
   return [
     check('name', CONSTANT.NAME_IS_6_32_SYMBOL).isLength({ min: 1, max: 32 }),
-    query('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
-    query('id').custom(async (value, { req }) => {
+    param('id', CONSTANT.ID_IS_REQUIRED).not().isEmpty(),
+    param('id').custom(async (value, { req }) => {
       const decoded = await jwtHelper.verifyToken(
         req.headers['x-access-token'],
         accessTokenSecret
