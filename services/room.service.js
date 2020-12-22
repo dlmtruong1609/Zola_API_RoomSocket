@@ -38,6 +38,7 @@ const createGroup = async (room, list_user_id = []) => {
     }
     const requestPromise = await util.promisify(request)
     const result = await requestPromise(options)
+    console.log(JSON.parse(result.body))
     // danh dau de hien thi message tu ngay nay
     const user = await {
       ...JSON.parse(result.body),
