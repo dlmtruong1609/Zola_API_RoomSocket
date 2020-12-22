@@ -18,15 +18,12 @@ const validateCreateSingle = () => {
     query('friend_id').custom(async (value, { req }) => {
       const options = {
         method: 'GET',
-        url: `http://api_account_chat:3333/api/v0/users/detail?id=${value}`,
-        headers: {
-          'x-access-token': process.env.TOKEN_3650
-        }
+        url: `http://api_account_chat:3333/api/v0/users/detail?id=${value}`
       }
       const requestPromise = util.promisify(request)
       const user = await requestPromise(options)
       console.log(!JSON.parse(user.body))
-      if (!JSON.parse(user.body).data) {
+      if (!JSON.parse(user.body)) {
         throw new Error(CONSTANT.USER_NOT_FOUND)
       }
       // valid room
@@ -92,14 +89,11 @@ const validateCreateGroup = () => {
       for (let i = 0; i < list_user_id.length; i++) {
         const options = {
           method: 'GET',
-          url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[i]}`,
-          headers: {
-            'x-access-token': process.env.TOKEN_3650
-          }
+          url: `http://api_account_chat:3333/api/v0/users/detail?id=${list_user_id[i]}`
         }
         const requestPromise = util.promisify(request)
         const user = await requestPromise(options)
-        if (!JSON.parse(user.body).data) {
+        if (!JSON.parse(user.body)) {
           throw new Error(CONSTANT.USER_NOT_FOUND)
         }
         for (let j = i + 1; j < list_user_id.length; j++) {
@@ -189,7 +183,7 @@ const validateAddMember = () => {
         }
         const requestPromise = util.promisify(request)
         const user = await requestPromise(options)
-        if (!JSON.parse(user.body).data) {
+        if (!JSON.parse(user.body)) {
           throw new Error(CONSTANT.USER_NOT_FOUND)
         }
       }

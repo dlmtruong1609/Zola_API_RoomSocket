@@ -16,7 +16,7 @@ const createSingle = async (room, list_user_id = []) => {
     const result = await requestPromise(options)
     // danh dau de hien thi message tu ngay nay
     const user = await {
-      ...JSON.parse(result.body).data,
+      ...JSON.parse(result.body),
       startDate: new Date(),
       deleted: false,
       exited: false
@@ -40,7 +40,7 @@ const createGroup = async (room, list_user_id = []) => {
     const result = await requestPromise(options)
     // danh dau de hien thi message tu ngay nay
     const user = await {
-      ...JSON.parse(result.body).data,
+      ...JSON.parse(result.body),
       startDate: new Date(),
       deleted: false,
       exited: false
