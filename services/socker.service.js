@@ -96,11 +96,7 @@ const connection = (socket) => {
   const loadRoom = async (room) => {
     socket.info.roomId = room._id
     socket.join(room._id)
-    const message = []
-    for (let index = 0; index < room.messages.length; index++) {
-      await message.push(room.messages[index])
-    }
-    global.io.sockets.in(room._id).emit('load_message', message)
+    global.io.sockets.in(room._id).emit('load_message', room)
   }
 
   /* data example
