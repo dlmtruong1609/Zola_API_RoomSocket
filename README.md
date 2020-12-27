@@ -4,7 +4,7 @@ This is application chat with socket
 # # Demo: 
 CHAT: `http://zolavn.cf`
 # # Frontend Project
-- Web application: `https://gitlab.com/chatonline/zola-client`
+- Web application: `https://github.com/nqduy1999/Zola-Client`
 - Mobile application: `https://github.com/thanhtung5598/Mobile-FE-Zola.git`
 
 If registration doesn't work because of running out of money, create an account with admin
