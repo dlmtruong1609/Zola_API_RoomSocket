@@ -124,11 +124,11 @@ const connection = (socket) => {
           messages: messages
         }
       })
-      await Room.updateMany({ _id: room._id, 'users.deleted': true }, {
+      await Room.update({ _id: room._id, 'users.deleted': true }, {
         $set: {
-          'users.$.deleted': false
+          'users.$[elem].deleted': false
         }
-      })
+      }, { arrayFilters: [{ 'elem.deleted': true }], multi: true })
       global.io.sockets.in(room._id).emit('send_and_recive', messages)
       load_rooms(socket.info.list_user)
     }
