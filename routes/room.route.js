@@ -18,9 +18,9 @@ router.delete('/api/v0/rooms/:id', roomValidator.validateDeleteRoom(), roomContr
 
 router.put('/api/v0/rooms/exit', roomValidator.validateExitRoom(), roomController.exitRoom)
 
-router.put('/api/v0/rooms/:id', roomValidator.validateUpdateRoom(), roomController.updateRoom)
-
 router.put('/api/v0/rooms/members', roomValidator.validateAddMember(), roomController.addMember)
+
+router.put('/api/v0/rooms/:id', roomValidator.validateUpdateRoom(), roomController.updateRoom)
 
 router.get('/api/v0/rooms/messages/recent', roomController.getAllUserRecentMessages)
 
