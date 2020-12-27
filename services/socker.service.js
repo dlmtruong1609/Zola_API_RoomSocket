@@ -124,7 +124,7 @@ const connection = (socket) => {
           messages: messages
         }
       })
-      await Room.update({ _id: room._id, 'users.deleted': true }, {
+      await Room.updateMany({ _id: room._id, 'users.deleted': true }, {
         $set: {
           'users.$.deleted': false
         }
